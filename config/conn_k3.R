@@ -1,5 +1,5 @@
-ip='192.168.18.221'
+ip='123.207.201.140'
 port=1433
 user_name='sa'
-password='kingdee'
-db_name='LCERP201404'
+password='rds@2020'
+db_name='AIS20140904110155'
