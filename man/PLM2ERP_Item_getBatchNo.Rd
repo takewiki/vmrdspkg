@@ -16,5 +16,5 @@ PLM2ERP_Item_getBatchNo(config_file = "config/conn_tc.R")
 读取物料的批次列表
 }
 \examples{
-返回值
+PLM2ERP_Item_getBatchNo()
 }
