@@ -57,6 +57,24 @@ ERP_Item_Modify <- function(config_file = "config/conn_k3.R",data_item) {
 }
 
 
+# 1.3物料的逻辑禁用-----
+# 通过修改物料的备注属性进行禁用
+# 不做其他过多的内容
+# ERP系统中也不执行【禁用】操作
+#' 物料禁用
+#'
+#' @param config_file 配置文件
+#' @param data_item 物料数据
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' ERP_Item_Disable()
+ERP_Item_Disable <- function(config_file = "config/conn_k3.R",data_item) {
+
+}
+
 
 
 
