@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' PLM2ERP_Item_getBatchNo()
-PLM2ERP_Item_getBatchNo <- function(config_file = "config/conn_tc.R") {
+PLM_Item_getBatchNo <- function(config_file = "config/conn_tc.R") {
 
   #读取配置文件
   cfg_tc <- tsda::conn_config(config_file = config_file)
@@ -40,7 +40,7 @@ where PLMBatchnum like 'APP%' and ERPOperation is null")
 #'
 #' @examples
 #'PLM2ERP_Item_readByBatchNo()
-PLM2ERP_Item_readByBatchNo <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+PLM_Item_readByBatchNo <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
 
   #读取配置文件
   cfg_tc <- tsda::conn_config(config_file = config_file)
