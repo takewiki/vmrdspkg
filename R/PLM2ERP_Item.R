@@ -121,13 +121,13 @@ PLM_Item_Ecn_getBatchNo <- function(config_file = "config/conn_tc.R") {
 #'
 #' @param config_file 配置文件
 #' @param batchNo 批号
+#' @param propType 物料属性
 #'
 #' @return 返回值
-#' @export
 #'
 #' @examples
-#'PLM2ERP_Item_readByBatchNo()
-PLM_Item_readByBatchNo <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+#'PLM_Item_readByBatchNo_aux()
+PLM_Item_readByBatchNo_aux <- function(config_file = "config/conn_tc.R",propType='外购',batchNo='APP00000005') {
 
   #读取配置文件
   cfg_tc <- tsda::conn_config(config_file = config_file)
@@ -135,12 +135,75 @@ PLM_Item_readByBatchNo <- function(config_file = "config/conn_tc.R",batchNo='APP
   conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
   #获取处理批次
   sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
-where PLMBatchnum  ='",batchNo,"'")
+where PLMBatchnum  ='",batchNo,"'  and MProp = N'",propType,"' ")
+  # print(sql)
 
   #返回结果
   res <- tsda::sql_select(conn = conn_tc,sql_str = sql)
   #关闭连接
   tsda::conn_close(conn_tc)
+  #返回结果
+  return(res)
+
+}
+
+
+#' 外购物料的读取
+#'
+#' @param config_file 配置文件
+#' @param batchNo 批次号
+#'
+#' @return 返回所有相关的物料
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_WG()
+PLM_Item_readByBatchNo_WG <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '外购',batchNo = batchNo)
+
+  #返回结果
+  return(res)
+
+}
+
+#' 自制物料的读取
+#'
+#' @param config_file 配置文件
+#' @param batchNo 批次号
+#'
+#' @return 返回所有相关的物料
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_ZZ()
+PLM_Item_readByBatchNo_ZZ <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '自制',batchNo = batchNo)
+
+  #返回结果
+  return(res)
+
+}
+
+
+#' 委外物料的读取
+#'
+#' @param config_file 配置文件
+#' @param batchNo 批次号
+#'
+#' @return 返回所有相关的物料
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_WW()
+PLM_Item_readByBatchNo_WW <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '委外加工',batchNo = batchNo)
+
   #返回结果
   return(res)
 
