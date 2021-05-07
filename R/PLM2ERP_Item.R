@@ -168,6 +168,80 @@ PLM_Item_readByBatchNo_WG <- function(config_file = "config/conn_tc.R",batchNo='
 
 }
 
+
+
+#' 获取物料编码
+#'
+#' @param conn_erp ERP连接信息
+#' @param item_list 列表
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' item_getNumber()
+item_getNumber <- function(conn_erp = conn_vm_erp_test(),item_list) {
+  #读取ERP数据
+  #item_list <- res$MCode
+  #格式化数据
+  sql_tail <-  tsdo::sql_str(item_list)
+  sql_item <- paste0("  select  fnumber from t_icitem
+  where FNumber in (",sql_tail,")")
+  #print(sql_item)
+  #查询数据结果
+  res <- tsda::sql_select(conn_erp,sql_item)
+  return(res)
+
+}
+
+
+
+
+
+
+#' 获取全新的外购物料
+#'
+#' @param config_file 连接配置文件
+#' @param batchNo 批次号
+#' @param conn_erp ERP连接信息
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_WG_New()
+PLM_Item_readByBatchNo_WG_New <- function(config_file = "config/conn_tc.R",batchNo='APP00000005',
+                                          conn_erp = conn_vm_erp_test()) {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '外购',batchNo = batchNo)
+  #读取ERP数据
+  item_list <- res$MCode
+  #获取ERP数据
+  data_item <- item_getNumber(conn_erp = conn_erp,item_list = item_list)
+  ncount <- nrow(data_item)
+  if(ncount >0){
+    item_existed <- data_item$fnumber
+    flag <-    !item_list %in% item_existed
+    res <-res[flag,]
+  }else{
+    res <- res
+
+  }
+
+  #返回结果
+  return(res)
+
+}
+
+
+
+
+
+
+
+
+
 #' 自制物料的读取
 #'
 #' @param config_file 配置文件
@@ -182,6 +256,43 @@ PLM_Item_readByBatchNo_ZZ <- function(config_file = "config/conn_tc.R",batchNo='
 
 
   res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '自制',batchNo = batchNo)
+
+  #返回结果
+  return(res)
+
+}
+
+
+
+#' 获取自制物料的信息信息
+#'
+#' @param config_file 配置
+#' @param batchNo 批号
+#' @param conn_erp ERP链接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_ZZ_New()
+PLM_Item_readByBatchNo_ZZ_New <- function(config_file = "config/conn_tc.R",batchNo='APP00000005',
+                                          conn_erp = conn_vm_erp_test()) {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '自制',batchNo = batchNo)
+  #读取ERP数据
+  item_list <- res$MCode
+  #获取ERP数据
+  data_item <- item_getNumber(conn_erp = conn_erp,item_list = item_list)
+  ncount <- nrow(data_item)
+  if(ncount >0){
+    item_existed <- data_item$fnumber
+    flag <-    !item_list %in% item_existed
+    res <-res[flag,]
+  }else{
+    res <- res
+
+  }
 
   #返回结果
   return(res)
@@ -208,6 +319,50 @@ PLM_Item_readByBatchNo_WW <- function(config_file = "config/conn_tc.R",batchNo='
   return(res)
 
 }
+
+
+
+#' 获取最新的委外物料信息
+#'
+#' @param config_file 配置文件
+#' @param batchNo 批号
+#' @param conn_erp ERP连接信息
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' PLM_Item_readByBatchNo_WW_New()
+PLM_Item_readByBatchNo_WW_New <- function(config_file = "config/conn_tc.R",batchNo='APP00000005',
+                                          conn_erp = conn_vm_erp_test()) {
+
+
+  res <- PLM_Item_readByBatchNo_aux(config_file = config_file,propType = '委外加工',batchNo = batchNo)
+  #读取ERP数据
+  item_list <- res$MCode
+  #获取ERP数据
+  data_item <- item_getNumber(conn_erp = conn_erp,item_list = item_list)
+  ncount <- nrow(data_item)
+  if(ncount >0){
+    item_existed <- data_item$fnumber
+    flag <-    !item_list %in% item_existed
+    res <-res[flag,]
+  }else{
+    res <- res
+
+  }
+
+
+  #返回结果
+  return(res)
+
+}
+
+
+
+
+
+
 
 
 
