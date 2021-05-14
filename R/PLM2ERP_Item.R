@@ -235,6 +235,73 @@ PLM_Item_readByBatchNo_WG_New <- function(config_file = "config/conn_tc.R",batch
 }
 
 
+PLM_Item_UpdateStatus <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
+  #读取配置文件
+  cfg_tc <- tsda::conn_config(config_file = config_file)
+  #打开连接
+  conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
+  sql <- past
+
+}
+
+
+#' 针对外购物料进行分配
+#'
+#' @param config_file 配置文件
+#' @param batchNo  批号
+#' @param conn_erp ERP连接信息
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' PLM_Item_Allocated_wg()
+PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP00000005',
+                                          conn_erp = conn_vm_erp_test()) {
+
+
+  #读取数据
+  df_new <- PLM_Item_readByBatchNo_WG_New(config_file = config_file,batchNo = batchNo,
+                                       conn_erp = conn_erp)
+  ncount <- nrow(df_new)
+  #读取待分配数据
+  df_unAlloc <- mdmpkg::Item_getUnAllocateNumbers(conn=conn_erp,n = ncount,FPropType = '外购')
+  #执行分配
+  res <- tsdo::allocate(df_new,df_unAlloc)
+  #添加批号信息
+  res$FBatchNo <- batchNo
+  res$FIsdo <- 0
+
+  #写入ERP数据库
+  try(tsda::db_writeTable(conn = conn_erp,table_name = 't_item_rdsInput',r_object = res,append = T))
+  #更新分配表的状态
+  sql_rdsroom_upd <- paste0("update a set a.fnumber_new = b.MCode,a.FFlag =1  from  t_item_rdsroom a
+inner join  t_item_rdsInput b
+on a.fnumber=b.fnumber
+and b.fbatchNum='",batchNo,"' and mprop='外购'")
+  tsda::sql_update(conn_erp,sql_str = sql_rdsroom_upd)
+
+  #更新TC数据库的状态
+
+
+
+
+
+  #返回结果
+  return(res)
+
+}
+
+
+name <- function(variables) {
+
+}
+
+
+
+
+
+
 
 
 
