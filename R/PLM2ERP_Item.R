@@ -241,11 +241,11 @@ PLM_Item_UpdateStatus <- function(config_file = "config/conn_tc.R",batchNo='APP0
   #打开连接
   conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
 
-  sql <- past
+ # sql <- past
 
 }
 
-#完成分配表的更新--------
+#完成分配表的更新*****--------
 #' 针对外购物料进行分配
 #'
 #' @param config_file 配置文件
@@ -261,26 +261,36 @@ PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP0
                                           conn_erp = conn_vm_erp_test()) {
 
 
-  #读取数据
+  #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_WG_New(config_file = config_file,batchNo = batchNo,
                                        conn_erp = conn_erp)
+  #print('test_new:')
+  #print(df_new)
   ncount <- nrow(df_new)
-  #读取待分配数据
+
+
+  #1.2读取待分配数据------
   df_unAlloc <- mdmpkg::Item_getUnAllocateNumbers(conn=conn_erp,n = ncount,FPropType = '外购')
-  #执行分配
+  #print('df_unallocation:')
+  #print(df_unAlloc)
+  #1.3 执行物料分配 ----
   res <- tsdo::allocate(df_new,df_unAlloc)
-  #添加批号信息
+  #print('test--1---')
+  #print(res)
+
+  #1.4 添加批号信息及相关信息------
   res$FBatchNo <- batchNo
   res$FIsdo <- 0
   res$FItemId <- 0
-  #进行处理
-  res$FParentNumber <- mdmpkg::mdm_getParentNumber(rds$MCode)
+  #上级物料编码
+  res$FParentNumber <- mdmpkg::mdm_getParentNumber(res$MCode)
 
 
-  #写入ERP数据库
+  #1.5 将相关结果写入ERP数据库-----
   #需要新加一个字段
   try(tsda::db_writeTable(conn = conn_erp,table_name = 't_item_rdsInput',r_object = res,append = T))
-  #更新分配表的状态
+
+  #1.6 更新分配表的状态
   sql_rdsroom_upd <- paste0("update a set a.fnumber_new = b.MCode,a.FFlag =1  from  t_item_rdsroom a
 inner join  t_item_rdsInput b
 on a.fnumber=b.fnumber
@@ -292,7 +302,7 @@ and b.fbatchNum='",batchNo,"' and mprop='外购'")
   on a.fnumber=b.fnumber
   where b.fbatchNum='",batchNo,"' and mprop='外购' and a.fitemclassid =4 ")
   tsda::sql_update(conn_erp,sql_str = sql_rdsInput_itemID)
-  #处理物料主表----
+  #1.7 处理物料主表----
   sql_item_rds <- paste0("update  a set  a.FNumber =b.MCode ,a.FName=b.MName,a.fparentid = i.FItemID   from t_item_rds a
 inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
@@ -330,7 +340,7 @@ inner join t_MeasureUnit m
 on b.UOM  = m.FName
 where  b.fbatchNum='",batchNo,"' and mprop='外购'")
   tsda::sql_update(conn_erp,sql_str = sql_item_base)
-  #将物料从缓存区更新到主表------
+  #1.8将物料从缓存区更新到主表------
   sql_item_pushBack <- paste0("INSERT INTO [dbo].t_item
            ([FItemID]
            ,[FItemClassID]
@@ -387,12 +397,12 @@ where
                 ")
   tsda::sql_update(conn_erp,sql_str = sql_item_pushBack)
 
-  #更新物料表的状态---
+  #1.9更新物料表的状态---
   sql_itemInput_updateStatus <- paste0("update  b set FIsDo =1   from  t_item_rdsInput b
 where
  b.fbatchNum='",batchNo,"' and mprop='外购'")
   tsda::sql_update(conn_erp,sql_str = sql_itemInput_updateStatus)
-  #更新中间表的状态
+  #1.10更新中间表的状态-------
   #读取配置文件
   cfg_tc <- tsda::conn_config(config_file = config_file)
   #打开连接
@@ -423,9 +433,6 @@ where
 }
 
 
-name <- function(variables) {
-
-}
 
 
 
