@@ -1,8 +1,51 @@
+#########################################################################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#########################################################################
 #1.1PLM系统中的BOM申请-------
 #对ERP系统没有任何影响，不需要做任何任何不做版本更新
 # 此时的BOM资料还没有完整
 # 在PLM系统中起到占位的使用
 PLM_BOM_Apply <- function(config_file = "config/conn_k3.R",data_bom) {
+
+  sql <- paste0("/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT TOP (1000) [PMCode]
+      ,[PMName]
+      ,[BOMRevCode]
+      ,[CMCode]
+      ,[CMName]
+      ,[ProductGroup]
+      ,[BOMCount]
+      ,[BOMUOM]
+      ,[PLMOperation]
+      ,[ERPOperation]
+      ,[PLMDate]
+      ,[ERPDate]
+      ,[FInterId]
+      ,[RootCode]
+      ,[FLowCode]
+      ,[PLMBatchnum]
+  FROM [TC4K3DB].[dbo].[PLMtoERP_BOM]
+  where PLMBatchnum='APP00000005'")
 
 }
 
