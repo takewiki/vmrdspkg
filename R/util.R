@@ -24,6 +24,20 @@ order by FClassIndex")
   return(res)
 }
 
+
+#' 设置BOM单号的最大流水号
+#'
+#' @param conn
+#'
+#' @return
+#' @export
+#'
+#' @examples
+BOM_setNewBillNo <- function(conn=conn_vm_erp_test()) {
+
+
+}
+
 #' BOM获取最新的内码
 #'
 #' @param conn 连接
@@ -53,6 +67,7 @@ BOM_getNewInterId <- function(conn=conn_vm_erp_test()) {
 #' @examples
 #' BOM_getNewBillTpl()
 BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),data_bom) {
+     #思路可以有
 
    sql <- paste0("select * from  rds_ICBomChild_tpl")
    data_tpl <- tsda::sql_select(conn,sql)
@@ -72,6 +87,13 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),data_bom) {
 
 }
 
+
+
+BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),data_bom) {
+
+
+
+}
 
 
 
