@@ -38,3 +38,27 @@ go
 
 
 
+select FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135,FPrintCount
+into rds_icbom_tpl_head
+from ICBom
+where finterid =6499
+
+
+---drop table rds_icbom_tpl_body
+
+select  top 1 FInterID,FEntryID,FBrNo,FItemID,FAuxPropID,FUnitID,FMaterielType,FMarshalType,FQty,FAuxQty,FBeginDay,FEndDay,FPercent,FScrap,FPositionNo,FItemSize,FItemSuite,FOperSN,FOperID,FMachinePos,FOffSetDay,FBackFlush,FStockID,FSPID,FNote,FNote1,FNote2,FNote3,FPDMImportDate,FDetailID,FCostPercentage,FEntrySelfZ0142,FEntrySelfZ0144,FEntrySelfZ0145,FEntrySelfZ0146,FEntrySelfZ0148
+into rds_icbom_tpl_body
+from ICBOMChild
+where finterid =6499
+
+
+
+select *  into  rds_icbomChild_input    from rds_icbom_tpl_body
+
+
+select *    into  rds_icbom_input   from rds_icbom_tpl_head
+
+
+select * from rds_icbomChild_input
+
+select *  from  rds_icbom_input
