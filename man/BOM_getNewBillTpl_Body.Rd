@@ -4,12 +4,21 @@
 \alias{BOM_getNewBillTpl_Body}
 \title{获取BOM新增的模板_表体部分}
 \usage{
-BOM_getNewBillTpl_Body(conn = conn_vm_erp_test(), data_bom)
+BOM_getNewBillTpl_Body(
+  conn = conn_vm_erp_test(),
+  BOMRevCode = "TCB100181/A",
+  PLMBatchnum = "BOM00000002",
+  FLowCode = 2
+)
 }
 \arguments{
 \item{conn}{连接}
 
-\item{data_bom}{新增的BOM数据}
+\item{BOMRevCode}{子项BOM版本号}
+
+\item{PLMBatchnum}{批号}
+
+\item{FLowCode}{流程低位码}
 }
 \value{
 返回值
@@ -18,5 +27,5 @@ BOM_getNewBillTpl_Body(conn = conn_vm_erp_test(), data_bom)
 获取BOM新增的模板_表体部分
 }
 \examples{
-BOM_getNewBillTpl()
+BOM_getNewBillTpl_Body()
 }
