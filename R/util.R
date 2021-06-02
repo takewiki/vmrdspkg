@@ -132,5 +132,60 @@ BOM_getNewInterId <- function(conn=conn_vm_erp_test()) {
 }
 
 
+#' BOM获取单据编码的组别
+#'
+#' @param FItemNumber 物料编码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' bom_getBillGroup()
+bom_getBillGroup <- function(FItemNumber='2.104.20.00026') {
+  #print(FItemNumber)
+  my_str <-  strsplit(FItemNumber,'\\.')
+  #print(my_str)
+  res <-paste0(my_str[[1]][2:3],collapse = ".")
+ # print(res)
+  return(res)
+
+
+}
+
+
+#' 获取BOM单据编号的组别
+#'
+#' @param conn 连接
+#' @param FItemNumber 单据编号
+#'
+#' @return 返回组别内码
+#' @export
+#'
+#' @examples
+#' bom_getBillGroupID()
+bom_getBillGroupID <- function(conn=conn_vm_erp_test(),FItemNumber='2.104.20.00026') {
+  billGroupNumber = bom_getBillGroup(FItemNumber)
+  sql <- paste0("	 select  FInterID  from ICBOMGroup
+	 where FNumber = '",billGroupNumber,"'")
+  r <- tsda::sql_select(conn,sql)
+  ncount <- nrow(r)
+  if (ncount >0){
+    res <- r$FInterID
+  }else{
+    #取未分配值
+    sql <- paste0("	 select  FInterID  from ICBOMGroup
+	 where FNumber = '999'")
+    r <- tsda::sql_select(conn,sql)
+    res <- r$FInterID
+
+
+  }
+  return(res)
+
+
+}
+
+
+
 
 

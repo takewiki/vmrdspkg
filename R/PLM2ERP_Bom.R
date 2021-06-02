@@ -9,9 +9,9 @@
 # 版本号作为文本进行处理，不留历史版本
 # 历史版本进入中台
 # BOM历史版本与生产投料单进行核对
-#
-#
-#
+# BOM单组别增加 999   未分类,根据物料编码进行判断   ok
+# #BOM子项物料的排序，FEntryId可能影响成本计算
+# #
 #
 #
 #
@@ -197,7 +197,10 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
     #BOM处于使用状态
     data_p$FUseStatus <- 1072
     data_p$FVersion <-bom_getVersion(conn = conn,version_plm = bom_bill_version[[1]][2])
-    data_p$FParentID <- data_bom$FProductGroupId
+    #组别采用新增规则，从物料编码上判断，取第2，3段，否则为未分类
+    # 不再从中间表传递
+    #data_p$FParentID <- data_bom$FProductGroupId
+    data_p$FParentID <- bom_getBillGroupID(conn = conn,FItemNumber = PMCode)
 
     # data_p$FQty <- as.numeric(data_bom$FQty)
     # data_p$FAuxQty <- as.numeric(data_bom$FQty)
