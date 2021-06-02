@@ -94,7 +94,42 @@ and FProjectID =3")
 }
 
 
+#' bom将PLM的版本转化为ERP中需要的版本
+#'
+#' @param conn 连接
+#' @param version_plm plm版本
+#'
+#' @return 返回ERP中的版本从001开始
+#' @export
+#'
+#' @examples
+#' bom_getVersion()
+bom_getVersion <- function(conn=conn_vm_erp_test(),version_plm='A') {
+  sql <- paste0("select FVersion_ERP from rds_BOM_version
+where FVersion_PLM ='",version_plm,"'")
+  r <- tsda::sql_select(conn,sql)
+  res <- r$FVersion_ERP[1]
+  return(res)
 
+}
+
+#' BOM获取最新的内码
+#'
+#' @param conn 连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' BOM_getNewInterId()
+BOM_getNewInterId <- function(conn=conn_vm_erp_test()) {
+
+  sql <- paste0("select max(FInterID )+1 as FInterId from ICBOM")
+  r <- tsda::sql_select(conn,sql)
+  res = r$FInterId
+
+  return(res)
+}
 
 
 

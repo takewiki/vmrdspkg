@@ -93,10 +93,12 @@ truncate table  rds_icbomChild_input
 select *   from ICBOMChild where FInterID =6500
 
 
-
+select * from rds_icbomChild_input
 
 
 select *  from  rds_icbom_input
+
+truncate table  rds_icbom_input
 
 
 
@@ -123,6 +125,7 @@ left  join t_ICItem i_sub
 on  a.CMCode  collate chinese_prc_ci_as  = i_sub.FNumber
 left join ICBOMGroup ig
 on a.ProductGroup collate chinese_prc_ci_as = ig.FNumber
+where PLMBatchnum not like 'APP%' and ERPDate is null
 go
 
 
@@ -213,3 +216,39 @@ where ProductGroup ='104'
 
 
 select * from  PLMtoERP_BOM
+
+
+select PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
+where  cmcode ='' and  ERPDate is null
+order by plmbatchnum,flowcode
+
+
+select  *  from  vw_PLMtoERP_BOM
+where  PLMBatchNum ='BOM00000002' and
+PMCode ='2.104.20.00026'
+and cmcode  <> ''
+
+
+
+select * from icbom
+where FInterID =6500
+
+
+update a set BOMRevCode ='TCB100182/A' from PLMtoERP_BOM  a where PMCode ='2.104.20.00034' and CMCode ='' and PLMBatchnum='BOM00000002'
+
+
+
+delete  from ICBOMChild  where FInterID =6501
+
+
+delete  from ICBOM   where FInterID =6501
+
+
+select * from
+
+
+select * from PLMtoERP_BOM where PMCode ='2.104.20.00026' and PLMBatchnum='BOM00000002'
+
+
+
+
