@@ -73,6 +73,13 @@ select *   from rds_icbomChild_input
 select * from  rds_icbom_tpl_head
 
 
+select * from rds_icbom_input
+delete  from rds_icbom_input
+
+
+
+
+
 
 
 INSERT INTO ICBomChild (FInterID,FEntryID,FBrNo,FItemID,FAuxPropID,FUnitID,FMaterielType,FMarshalType,FQty,FAuxQty,FBeginDay,FEndDay,FPercent,FScrap,FPositionNo,FItemSize,FItemSuite,FOperSN,FOperID,FMachinePos,FOffSetDay,FBackFlush,FStockID,FSPID,FNote,FNote1,FNote2,FNote3,FPDMImportDate,FDetailID,FCostPercentage,FEntrySelfZ0142,FEntrySelfZ0144,FEntrySelfZ0145,FEntrySelfZ0146,FEntrySelfZ0148)
@@ -105,25 +112,29 @@ sp_help rds_icbomChild_input
 
 
 ------创建视图
-create view vw_PLMtoERP_BOM as
+alter  view vw_PLMtoERP_BOM as
 select a.*,i_pm.FItemID as FParentItemId, i_pm.FUnitID as FParentUnitID,
-     i_sub.FItemID as FSubItemId,i_sub.FUnitID as FSubUnitId
+     i_sub.FItemID as FSubItemId,i_sub.FUnitID as FSubUnitId,ig.FInterID as FProductGroupId
 
 from  [PLMtoERP_BOM] a
 left  join t_ICItem i_pm
 on  a.PMCode collate chinese_prc_ci_as  =  i_pm.FNumber
 left  join t_ICItem i_sub
 on  a.CMCode  collate chinese_prc_ci_as  = i_sub.FNumber
+left join ICBOMGroup ig
+on a.ProductGroup collate chinese_prc_ci_as = ig.FNumber
 go
 
 
+select * from  vw_PLMtoERP_BOM
 
 
 
 
 
-	  select *   from  [vw_PLMtoERP_BOM]
-  where  PLMBatchnum='BOM00000002'
+
+	  select FParentItemId,FParentUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
+  where  PLMBatchnum='BOM00000002' and PMCode =  '2.104.20.00034' and CMCode=''
 
 
 
@@ -157,7 +168,8 @@ insert into rds_BOM_version values('Z','026')
 
 
 
-select * from rds_BOM_version
+select FVersion_ERP from rds_BOM_version
+where FVersion_PLM ='A'
 
 
 
@@ -182,4 +194,22 @@ select * from rds_BOM_version
 and PMCode='2.104.20.00034' and CMCode =''
 
 
-select * from ICBOMGroup where FName ='104'
+select * from ICBOMGroup where FNumber like '104%'
+
+
+
+select * from ICBOMGroup where  FName  like 'vLoc3-5000%'
+
+
+
+
+109.03
+
+
+
+
+update a set  ProductGroup='109.03'  from  PLMtoERP_BOM a
+where ProductGroup ='104'
+
+
+select * from  PLMtoERP_BOM
