@@ -1,4 +1,20 @@
-
+#####################################################################
+# 本文用于设置测试数据库连接信息
+# 本库为项目私有库不用于对外公开
+# 版本归上海棱星数据技术有限公司所有,保留所有版权
+# 作者:胡立磊
+# 邮箱:hulilei@takewiki.com.cn
+# 日期:2021年06月06日
+#
+#
+#
+#
+#
+#
+#
+#
+######################################################################
+# 测试环境ERP配置-------
 #' 测试环境ERP的连接参数设置
 #'
 #' @return 返回数据链接
@@ -10,6 +26,36 @@ conn_vm_erp_test_aux <- function() {
   return(res)
 
 }
+
+
+#' 生产环境的测试数据库
+#'
+#' @return 返回链接
+#' @export
+#'
+#' @examples
+#' conn_vm_erp_prd_aux()
+conn_vm_erp_test2_aux <- function() {
+  res <-tsda::sql_conn_common(ip = '192.168.0.110',user_name = 'sa',password = 'Vxmt$h5502',db_name = 'AIS20200629100920')
+  return(res)
+
+}
+
+#' 生产环境的正式数据库
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' conn_vm_erp_prd_aux()
+conn_vm_erp_prd_aux <- function() {
+  res <-tsda::sql_conn_common(ip = '192.168.0.110',user_name = 'sa',password = 'Vxmt$h5502',db_name = 'AIS20140904110155')
+  return(res)
+
+}
+
+
+
 
 
 #' 测试环境PLM的连接参数设置
