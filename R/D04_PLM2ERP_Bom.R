@@ -69,7 +69,7 @@ where i.FNumber ='",PMCode,"'")
 #' @param PMCode 更新产品编码
 #'
 #' @return 返回值
-#' @include util.R
+#' @include C_util.R
 #' @export
 #'
 #' @examples

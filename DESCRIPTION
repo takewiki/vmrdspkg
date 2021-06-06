@@ -11,9 +11,10 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Collate: 
-    'ERP_BOM_Model.R'
-    'ERP_Item_Model.R'
-    'util.R'
-    'PLM2ERP_Bom.R'
-    'PLM2ERP_Item.R'
-    'conn.R'
+    'A_conn.R'
+    'B_sync.R'
+    'C_util.R'
+    'D01_ERP_Item_Model.R'
+    'D02_ERP_BOM_Model.R'
+    'D03_PLM2ERP_Item.R'
+    'D04_PLM2ERP_Bom.R'
