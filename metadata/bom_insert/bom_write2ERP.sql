@@ -176,6 +176,10 @@ where FVersion_PLM ='A'
 
 
 
+select * from PLMtoERP_BOM where PLMBatchnum ='BOM00000002'
+
+
+
 
 
 
@@ -230,6 +234,8 @@ and cmcode  <> ''
 
 
 
+update a set ERPDate =GETDATE(),ERPOperation='R'	 from PLMtoERP_BOM a where PLMBatchnum ='PRD00000004'
+
 select * from icbom
 where FInterID =6500
 
@@ -238,10 +244,9 @@ update a set BOMRevCode ='TCB100182/A' from PLMtoERP_BOM  a where PMCode ='2.104
 
 
 
-delete  from ICBOMChild  where FInterID =6501
+delete  from ICBOMChild  where FInterID =	 6507
 
-
-delete  from ICBOM   where FInterID =6501
+delete  from ICBOM   where FInterID =	 6507
 
 
 select * from
@@ -250,5 +255,140 @@ select * from
 select * from PLMtoERP_BOM where PMCode ='2.104.20.00026' and PLMBatchnum='BOM00000002'
 
 
+update a set  ERPOperation='R',ERPDate =GETDATE()    from PLMtoERP_BOM  a where PMCode ='2.104.20.00026' and PLMBatchnum='BOM00000002'
+
+update a set  ERPOperation='R',ERPDate =GETDATE()    from PLMtoERP_BOM  a where  PLMBatchnum='BOM00000002'
 
 
+
+
+select FInterID  from ICBOM  a
+inner join t_ICItem i
+on a.FItemID = i.fitemid
+where i.FNumber ='2.104.20.00034'
+
+
+USE [AIS20140904110155]
+GO
+
+
+CREATE TABLE [dbo].[rds_ICBOM](
+	[FBrNo] [varchar](10) NOT NULL,
+	[FInterID] [int] NOT NULL,
+	[FBOMNumber] [varchar](300) NOT NULL,
+	[FImpMode] [smallint] NOT NULL,
+	[FUseStatus] [int] NULL,
+	[FVersion] [varchar](300) NOT NULL,
+	[FParentID] [int] NULL,
+	[FItemID] [int] NOT NULL,
+	[FQty] [decimal](28, 10) NOT NULL,
+	[FYield] [decimal](28, 10) NULL,
+	[FCheckID] [int] NULL,
+	[FCheckDate] [datetime] NULL,
+	[FOperatorID] [int] NULL,
+	[FEnterTime] [datetime] NOT NULL,
+	[FStatus] [smallint] NOT NULL,
+	[FCancellation] [bit] NOT NULL,
+	[FTranType] [int] NOT NULL,
+	[FRoutingID] [int] NOT NULL,
+	[FBomType] [int] NOT NULL,
+	[FCustID] [int] NOT NULL,
+	[FCustItemID] [int] NOT NULL,
+	[FAccessories] [int] NOT NULL,
+	[FNote] [varchar](300) NOT NULL,
+	[FUnitID] [int] NOT NULL,
+	[FAUXQTY] [decimal](28, 10) NOT NULL,
+	[FCheckerID] [int] NULL,
+	[FAudDate] [datetime] NULL,
+	[FEcnInterID] [int] NOT NULL,
+	[FBeenChecked] [bit] NOT NULL,
+	[FForbid] [smallint] NOT NULL,
+	[FAuxPropID] [int] NOT NULL,
+	[FPDMImportDate] [datetime] NULL,
+	[FBOMSkip] [smallint] NOT NULL,
+	[FClassTypeID] [int] NULL,
+	[FUserID] [int] NULL,
+	[FUseDate] [datetime] NULL,
+	[FHeadSelfZ0135] [varchar](255) NULL,
+	[FPrintCount] [int] NOT NULL,
+	[FMultiCheckStatus] [int] NOT NULL,
+	[FDeletedUse] [int] NOT NULL)
+go
+USE [AIS20140904110155]
+GO
+
+/****** Object:  Table [dbo].[ICBOMChild]    Script Date: 2021/1/11 17:33:37 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+---drop table rds_ICBOMChild
+
+
+CREATE TABLE [dbo].[rds_ICBOMChild](
+	[FBrNo] [varchar](10) NOT NULL,
+	[FEntryID] [int] NOT NULL,
+	[FInterID] [int] NOT NULL,
+	[FItemID] [int] NOT NULL,
+	[FAuxQty] [decimal](28, 10) NOT NULL,
+	[FQty] [decimal](28, 10) NOT NULL,
+	[FScrap] [decimal](28, 10) NOT NULL,
+	[FOperSN] [int] NOT NULL,
+	[FOperID] [int] NOT NULL,
+	[FMachinePos] [varchar](1000) NULL,
+	[FNote] [varchar](1000) NULL,
+	[FMaterielType] [int] NOT NULL,
+	[FMarshalType] [int] NOT NULL,
+	[FPercent] [decimal](28, 10) NOT NULL,
+	[FBeginDay] [datetime] NOT NULL,
+	[FEndDay] [datetime] NOT NULL,
+	[FOffSetDay] [decimal](28, 10) NOT NULL,
+	[FBackFlush] [int] NOT NULL,
+	[FStockID] [int] NULL,
+	[FSPID] [int] NOT NULL,
+	[FSupply] [smallint] NOT NULL,
+	[FUnitID] [int] NOT NULL,
+	[FAuxPropID] [int] NOT NULL,
+	[FPDMImportDate] [datetime] NULL,
+	[FPositionNo] [nvarchar](4000) NOT NULL,
+	[FItemSize] [nvarchar](255) NOT NULL,
+	[FItemSuite] [nvarchar](255) NOT NULL,
+	[FNote1] [nvarchar](255) NOT NULL,
+	[FNote2] [nvarchar](255) NOT NULL,
+	[FNote3] [nvarchar](255) NOT NULL,
+	[FHasChar] [smallint] NULL,
+	[FDetailID] [uniqueidentifier] NOT NULL,
+	[FEntryKey] [int]  NOT NULL,
+	[FCostPercentage] [decimal](6, 2) NULL,
+	[FEntrySelfZ0142] [varchar](255) NULL,
+	[FEntrySelfZ0144] [int] NULL,
+	[FEntrySelfZ0148] [int] NULL,
+	[FEntrySelfZ0146] [int] NULL,
+	[FEntrySelfZ0145] [int] NULL)
+	go
+
+
+
+	select * from rds_ICBOMChild
+
+	select * from rds_icbom
+
+
+
+	insert into rds_ICBOMChild
+   select * from ICBOMChild where FInterID = 5
+
+
+
+     delete  from ICBOMChild where FInterID = 5
+
+	 6507
+
+
+	 select  FInterID  from ICBOMGroup
+	 where FNumber = '104.16'
+
+
+	 	 select  *  from ICBOMGroup
+	 where FNumber = '104.16'
