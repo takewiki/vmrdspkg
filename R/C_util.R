@@ -3,25 +3,8 @@
 #  由于BOM单号由PLM系统生成，因此不需要在ERP系统中生成
 #  但是内码需要进行进行
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 ##########################################################################
-#获取BOM单号信息
+# 1.0获取BOM单号信息(本次不用)------
 #' 获取BOM的最新单据编号
 #'
 #' @param conn 连接
@@ -48,7 +31,7 @@ order by FClassIndex")
 }
 
 
-
+# 1.1获取BOM单号流水号的最大值并转化为数值型(本次不用)-----
 #' 获取BOM单号流水号的最大值并转化为数值型
 #'
 #' @param conn 连接
@@ -69,7 +52,7 @@ and FProjectID =3")
 
   return(res)
 }
-
+# 1.2设置BOM单号的最大流水号(本次不用)--------
 #' 设置BOM单号的最大流水号
 #'
 #' @param conn 连接
@@ -93,7 +76,39 @@ and FProjectID =3")
 
 }
 
-
+# 2.1bom将PLM的版本转化为ERP中需要的版本------
+# 2.1 Pre 版本数据SQL-----
+# if exists(select * from sys.objects where  name ='rds_BOM_version')
+# drop table rds_BOM_version
+# create table rds_BOM_version
+# (FVersion_PLM varchar(30),FVersion_ERP varchar(30))
+# ----2.2A插入版本数据
+# insert into rds_BOM_version values('A','001')
+# insert into rds_BOM_version values('B','002')
+# insert into rds_BOM_version values('C','003')
+# insert into rds_BOM_version values('D','004')
+# insert into rds_BOM_version values('E','005')
+# insert into rds_BOM_version values('F','006')
+# insert into rds_BOM_version values('G','007')
+# insert into rds_BOM_version values('H','008')
+# insert into rds_BOM_version values('I','009')
+# insert into rds_BOM_version values('J','010')
+# insert into rds_BOM_version values('K','011')
+# insert into rds_BOM_version values('L','012')
+# insert into rds_BOM_version values('M','013')
+# insert into rds_BOM_version values('N','014')
+# insert into rds_BOM_version values('O','015')
+# insert into rds_BOM_version values('P','016')
+# insert into rds_BOM_version values('Q','017')
+# insert into rds_BOM_version values('R','018')
+# insert into rds_BOM_version values('S','019')
+# insert into rds_BOM_version values('T','020')
+# insert into rds_BOM_version values('U','021')
+# insert into rds_BOM_version values('V','022')
+# insert into rds_BOM_version values('W','023')
+# insert into rds_BOM_version values('X','024')
+# insert into rds_BOM_version values('Y','025')
+# insert into rds_BOM_version values('Z','026')
 #' bom将PLM的版本转化为ERP中需要的版本
 #'
 #' @param conn 连接
@@ -112,7 +127,7 @@ where FVersion_PLM ='",version_plm,"'")
   return(res)
 
 }
-
+#2.2 ERP中的BOM表头获取最新的内码------
 #' BOM获取最新的内码
 #'
 #' @param conn 连接
@@ -131,7 +146,7 @@ BOM_getNewInterId <- function(conn=conn_vm_erp_test()) {
   return(res)
 }
 
-
+# 2.3ABOM获取单据编码的组别-------
 #' BOM获取单据编码的组别
 #'
 #' @param FItemNumber 物料编码
@@ -152,7 +167,8 @@ bom_getBillGroup <- function(FItemNumber='2.104.20.00026') {
 
 }
 
-
+#2.3B获取BOM单据编号的组别ID------
+# 2.3.B Pre前置工作：在ERP中定义BOM组别999未分配----
 #' 获取BOM单据编号的组别
 #'
 #' @param conn 连接

@@ -9,6 +9,7 @@
 # 强制增加容错处理
 # 增加try机制
 # vm_create tables and viewed.sql
+# 1.0 pre 物料表数据结构SQL----
 # sql:
 # use AIS20140904110155
 # go
@@ -82,7 +83,7 @@ data_PLMtoERP_Item_erp <- function(conn=conn_vm_erp_test()) {
 
 
 
-# 1.0 同步物料信息-------
+# 1.0 同步物料信息初始步-------
 #' 同步物料信息到ERP库,初始化仅一次
 #'
 #' @param conn_plm PLM连接信息
@@ -137,7 +138,7 @@ data_PLMtoERP_Item_maxDate  <- function(conn=conn_vm_erp_test()){
   res <- r$PLMDate
   return(res)
 }
-# 1.1 pre 日志文件------
+# 1.1 pre 日志文件SQL创建------
 # SQL:
 # if exists(select * from sys.objects where  name ='rds_dataSync_log')
 # drop table rds_dataSync_log
@@ -222,7 +223,77 @@ sync_PLMtoERP_Item_periodly <- function(conn_plm=conn_vm_plm_test(),conn_erp=con
 
 }
 
-# 2.0 同步BOM信息-------
+# 2.0 pre BOM数据结构-----
+# SQL:
+# if exists(select * from sys.objects where  name ='PLMtoERP_BOM')
+# drop table PLMtoERP_BOM
+# CREATE TABLE [dbo].[PLMtoERP_BOM](
+#   [PMCode] [nvarchar](30) NULL,
+#   [PMName] [nvarchar](80) NULL,
+#   [BOMRevCode] [nvarchar](30) NULL,
+#   [CMCode] [nvarchar](30) NULL,
+#   [CMName] [nvarchar](80) NULL,
+#   [ProductGroup] [nvarchar](30) NULL,
+#   [BOMCount] [nvarchar](30) NULL,
+#   [BOMUOM] [nvarchar](30) NULL,
+#   [PLMOperation] [nvarchar](30) NULL,
+#   [ERPOperation] [nvarchar](30) NULL,
+#   [PLMDate] [datetime] NULL,
+#   [ERPDate] [datetime] NULL,
+#   [FInterId] [int]  NOT NULL,
+#   [RootCode] [nvarchar](80) NULL,
+#   [FLowCode] [nvarchar](50) NULL,
+#   [PLMBatchnum] [nvarchar](50) NULL
+# ) ON [PRIMARY]
+# GO
+# 2.0 同步BOM信息初步化同步-------
+
+#' 同步BOM信息
+#'
+#' @param conn 连接信息
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' data_PLMtoERP_BOM()
+data_PLMtoERP_BOM  <- function(conn=conn_vm_erp_test()){
+  sql <- paste0(" select * from PLMtoERP_BOM")
+  data <- tsda::sql_select(conn = conn,sql_str = sql)
+  return(data)
+}
+
+#' 读取PLM中的BOM信息
+#'
+#' @param conn 连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' data_PLMtoERP_BOM_plm()
+data_PLMtoERP_BOM_plm <- function(conn=conn_vm_plm_test()) {
+  res <- data_PLMtoERP_BOM(conn = conn)
+  return(res)
+
+}
+
+
+#' 获取PLM中的BOM信息
+#'
+#' @param conn 连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' data_PLMtoERP_BOM_erp()
+data_PLMtoERP_BOM_erp <- function(conn=conn_vm_erp_test()) {
+  res <- data_PLMtoERP_BOM(conn = conn)
+  return(res)
+
+}
+
 
 
 #' 同步BOM信息到ERP库
@@ -238,6 +309,96 @@ sync_PLMtoERP_Item_periodly <- function(conn_plm=conn_vm_plm_test(),conn_erp=con
 #' 表名：
 #' SQL名：
 sync_PLMtoERP_BOM_intially <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()) {
+  data_plm <- data_PLMtoERP_BOM_plm(conn = conn_plm)
+  data_erp <- data_PLMtoERP_BOM_erp(conn = conn_erp)
+  ncount_plm = nrow(data_plm)
+  ncount_erp = nrow(data_erp)
+  if(ncount_plm >0 & ncount_erp == 0){
+    #说明存在初始化数据，可以进行写入
+    # 虽然是写入，还是增加容错机制
+    try({
+      tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_BOM',r_object = data_plm,append = TRUE)
+    })
+
+
+
+  }else if(ncount_plm & ncount_erp){
+    print('ERP库中PLMtoERP_BOM表中已经存在数据，不需要重写')
+  }else{
+    print('PLM库中PLMtoERP_BOM表中没有数据，不需要写入')
+  }
+}
+
+# 2.1周期性同步BOM信息----
+
+#' 获取最大日期
+#'
+#' @param conn 连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' data_PLMtoERP_BOM_maxDate()
+data_PLMtoERP_BOM_maxDate  <- function(conn=conn_vm_erp_test()){
+  sql <- paste0("select max(PLMDate) as   PLMDate  from  PLMtoERP_BOM")
+  r <- tsda::sql_select(conn = conn,sql_str = sql)
+  res <- r$PLMDate
+  return(res)
+}
+
+#' 从PLM库中获取最新更新的数据
+#'
+#' @param conn_plm 连接
+#' @param conn_erp ERP连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' data_PLMtoERP_Item_fromDate()
+data_PLMtoERP_BOM_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()){
+  # 从ERP获取上次更新日期
+  last_date <- data_PLMtoERP_BOM_maxDate(conn = conn_erp)
+
+  sql <- paste0("select  *  from  PLMtoERP_BOM
+where PLMDate >'",last_date,"'")
+  data <- tsda::sql_select(conn = conn_plm,sql_str = sql)
+  ncount = nrow(data)
+  if(ncount > 0){
+    #数据已经存在,写入ERP
+    try({
+      tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_BOM',r_object = data,append = TRUE)
+    })
+    #写入日志表
+    FDateFrom =  last_date
+    FTableName = 'PLMtoERP_BOM'
+    FCount = ncount
+    FStatus_PLM = 1
+    FStatus_ERP = 0
+    data_log = data.frame(FDateFrom,FTableName,FCount,FStatus_PLM,FStatus_ERP,stringsAsFactors = F)
+    try({
+      tsda::db_writeTable(conn = conn_erp,table_name = 'rds_dataSync_log',r_object = data_log,append = TRUE)
+    })
+    #更新PLM库的状态
+    ERP_DATE = as.character(Sys.time())
+    sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_BOM a
+where PLMDate >'",last_date,"'")
+    try({
+      tsda::sql_update(conn = conn_plm,sql_str = sql_udp_plm)
+    })
+
+
+
+
+
+
+
+  }else
+  {
+    print('不存在更新数据')
+  }
+  return(data)
 
 }
 
@@ -253,5 +414,8 @@ sync_PLMtoERP_BOM_intially <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn
 #' @examples
 #' sync_PLMtoERP_BOM_periodly()
 sync_PLMtoERP_BOM_periodly <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()) {
+
+  res <- data_PLMtoERP_BOM_fromDate(conn_plm = conn_plm,conn_erp = conn_erp)
+  return(res)
 
 }
