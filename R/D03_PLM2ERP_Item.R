@@ -100,6 +100,7 @@ PLM_Item_readByBatchNo_WG <- function(config_file = "config/conn_tc.R",batchNo='
 #1.3 获取物料编码，后续将不再使用，原因之前PLM与ERP分开的逻辑-------
 #后续通过视图等其他功能实现
 
+#获取物料编码
 #' 获取物料编码
 #'
 #' @param conn_erp ERP连接信息
@@ -192,6 +193,9 @@ PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP0
   #print('test_new:')
   #print(df_new)
   ncount <- nrow(df_new)
+
+
+
 
 
   #1.2读取待分配数据------
