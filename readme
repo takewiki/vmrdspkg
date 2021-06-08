@@ -1,0 +1,3 @@
+
+update a set BOMCount = '1' from PLMtoERP_BOM  a where BOMCount  =  ''
+

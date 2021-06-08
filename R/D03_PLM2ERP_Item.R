@@ -10,18 +10,10 @@
 #
 #
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 #########################################################################
-#1.1A读取物料批次通用函数------
+#1.1A读取物料批次通用函数(本次不用这个逻辑)
+# 1.1A:Note这个逻辑有问题的  Not Used-----
+# 获取批号
 #' 读取物料申请的批次列表
 #'
 #' @param config_file 配置文件
@@ -51,95 +43,8 @@ where PLMBatchnum like '",prefix,"%' and ERPOperation is null")
 
 
 
-#1.1A读取物料申请批次------
-#' 读取物料申请的批次列表
-#'
-#' @param config_file 配置文件
-#'
-#' @return 返回值
-#' @export
-#'
-#' @examples
-#' PLM_Item_App_getBatchNo()
-PLM_Item_App_getBatchNo <- function(config_file = "config/conn_tc.R") {
-
-
-  res <- PLM_Item_getBatchNo_Aux(config_file = config_file ,prefix = 'APP')
-
-  #返回结果
-  return(res)
-
-}
-
-
-#1.1B读取物料创建BOM中使用的物料批次------
-#' 读取物料创建BOM时使用到的物料的批次列表
-#'
-#' @param config_file 配置文件
-#'
-#' @return 返回值
-#' @export
-#'
-#' @examples
-#' PLM_Item_Bom_getBatchNo()
-PLM_Item_Bom_getBatchNo <- function(config_file = "config/conn_tc.R") {
-
-
-  res <- PLM_Item_getBatchNo_Aux(config_file = config_file ,prefix = 'BOM')
-
-  #返回结果
-  return(res)
-
-}
-
-#1.1C读取物料发布BOM中使用的物料批次------
-#' 读取物料发布BOM时使用到的物料的批次列表
-#'
-#' @param config_file 配置文件
-#'
-#' @return 返回值
-#' @export
-#'
-#' @examples
-#' PLM_Item_Prd_getBatchNo()
-PLM_Item_Prd_getBatchNo <- function(config_file = "config/conn_tc.R") {
-
-
-  res <- PLM_Item_getBatchNo_Aux(config_file = config_file ,prefix = 'PRD')
-
-  #返回结果
-  return(res)
-
-}
-
-
-#1.1D读取物料ECN中使用的物料批次------
-#' 读取物料ECN时使用到的物料的批次列表
-#'
-#' @param config_file 配置文件
-#'
-#' @return 返回值
-#' @export
-#'
-#' @examples
-#' PLM_Item_Ecn_getBatchNo()
-PLM_Item_Ecn_getBatchNo <- function(config_file = "config/conn_tc.R") {
-
-
-  res <- PLM_Item_getBatchNo_Aux(config_file = config_file ,prefix = 'ECN')
-
-  #返回结果
-  return(res)
-
-}
-
-
-
-
-
-
 # 1.2按批次号获取新增物料信息------
-
+# 读取物料编码，物料，描述，规避型号****核心-----
 #' 按批次号获取新增物料信息
 #'
 #' @param config_file 配置文件
@@ -170,7 +75,7 @@ where PLMBatchnum  ='",batchNo,"'  and MProp = N'",propType,"' ")
 
 }
 
-
+#1.2.1 外购物料信息读取--------
 #' 外购物料的读取
 #'
 #' @param config_file 配置文件
@@ -192,6 +97,8 @@ PLM_Item_readByBatchNo_WG <- function(config_file = "config/conn_tc.R",batchNo='
 }
 
 
+#1.3 获取物料编码，后续将不再使用，原因之前PLM与ERP分开的逻辑-------
+#后续通过视图等其他功能实现
 
 #' 获取物料编码
 #'
@@ -221,7 +128,9 @@ item_getNumber <- function(conn_erp = conn_vm_erp_test(),item_list) {
 
 
 
-
+# 1.4 获取全新的物料编码，后包含新增物料------
+# 此条不适用于修改的物料，需要修改逻辑-----
+# 是不是新增物料唯一影响是否需要修改物料内码-----
 #' 获取全新的外购物料
 #'
 #' @param config_file 连接配置文件
@@ -257,16 +166,9 @@ PLM_Item_readByBatchNo_WG_New <- function(config_file = "config/conn_tc.R",batch
 
 }
 
-#更新物料状态 TBU ，按整个类型进行处理----------
-PLM_Item_UpdateStatus <- function(config_file = "config/conn_tc.R",batchNo='APP00000005') {
-  #读取配置文件
-  cfg_tc <- tsda::conn_config(config_file = config_file)
-  #打开连接
-  conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
 
- # sql <- past
 
-}
+
 
 #完成分配表的更新*****--------
 #' 针对外购物料进行分配
@@ -466,7 +368,7 @@ where
 
 
 
-
+# 自制物料的读取-----------
 
 
 #' 自制物料的读取
