@@ -112,7 +112,7 @@ where FNumber ='",FItemNumber,"'")
 # )
 # go
 #1.1.04初始化物料处理,预分配物料不够时使用此功能--------
-#***************A外购物料-----
+#1.1.04A 初始化物料处理外购物料-----
 
 #' 写入外购的物料进行待分配表
 #'
@@ -224,7 +224,7 @@ select
   return(res)
 }
 
-#**********************B自制物料--------
+#1.1.04B初始化物料处理自制物料--------
 #' 针对自制物料进行初始化隐藏处理
 #'
 #' @param conn ERP链接信息
@@ -334,7 +334,228 @@ select
   }
   return(res)
 }
+#1.1.04C初始化物料处理委外加工物料--------
+#' 处理委外待分配数据
+#'
+#' @param conn 连接
+#' @param table_name_rds 物料明细表
+#' @param table_name_room 待分配信息表
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' md_pushItem2UnAllocated_ww()
+Item_Initial_WW <-function(conn=vmrdspkg::conn_vm_erp_test(),
+                                      table_name_rds='t_Item_rds',
+                                      table_name_room ='t_item_rdsRoom'
+){
 
+  sql_item <- paste0("select  count(1)  as Fcount
+		   from t_item
+		where FNumber like 'RDS.03.%'
+		and fname = 'WW'")
+  data_item <- tsda::sql_select(conn,sql_item)
+  ncount <- data_item$Fcount
+  if (ncount >0){
+    #存在待处理的记录
+    sql_wg <-paste0("
+ INSERT INTO [dbo].[",table_name_rds,"]
+           ([FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture])
+ select [FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture]
+		   from t_item
+		where FNumber like 'RDS.03.%'
+		and fname = 'WW'")
+    #深度对数据进行数据
+    try(tsda::sql_update(conn,sql_wg))
+
+    sql_room <- paste0("insert into ",table_name_room,"
+select
+          [FItemClassID],
+
+          [FItemID]
+
+
+           ,[FNumber]
+
+           ,[FName],
+		   '委外加工' as FPropType,
+		   '' as FNumber_New,
+		   0 as FFlag
+
+		   from t_item
+		where FNumber like 'RDS.03.%'
+		and fname = 'WW'")
+
+    try(tsda::sql_update(conn,sql_room))
+
+    sql_del <- paste0("delete from t_item
+		where FNumber like 'RDS.03.%'
+		and fname = 'WW'")
+    try(tsda::sql_update(conn,sql_del))
+
+    res <- TRUE
+  }else{
+    res <- FALSE
+  }
+  return(res)
+}
+
+#1.1.05 返回未分配物料-----
+#' 返回未分配的物料数据
+#'
+#' @param conn 连接
+#' @param MProp 物料属性
+#' @param n  返回数量
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' Item_getUnAllocateNumber()
+Item_getUnAllocateNumber <- function(conn=conn_vm_erp_test(),
+                                      MProp='外购') {
+  #获取相应的数据物料数据，不考虑成本成本对象
+  # 但是更新数据时需要考虑成本对象的
+  sql <- paste0(" select  top  1  FNumber from t_item_rdsroom
+ where  FPropType = '",MProp,"' and FFlag = 0 and FItemClassId = 4
+ order by FNumber")
+  data <- tsda::sql_select(conn,sql)
+  ncount <-nrow(data)
+  if(ncount >0){
+    res <- data$FNumber
+  }else{
+    res <- NULL
+    print('没有待分配的物料，请联系管理员处理')
+  }
+  return(res)
+
+}
+
+#' 获取未分配的物料内码
+#'
+#' @param conn 连接
+#' @param FNumber 物料代码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' Item_getUnAllocateItemId()
+Item_getUnAllocateItemId <- function(conn=conn_vm_erp_test(),
+                                     FNumber='') {
+  #获取相应的数据物料数据，不考虑成本成本对象
+  # 但是更新数据时需要考虑成本对象的
+  sql <- paste0(" select FItemID from t_item_rdsroom
+where FNumber ='",FNumber,"' and FItemClassID =4 ")
+  data <- tsda::sql_select(conn,sql)
+  ncount <-nrow(data)
+  if(ncount >0){
+    res <- data$FItemID
+  }else{
+    res <- NULL
+    print('没有待分配的物料内码，请联系管理员处理')
+  }
+  return(res)
+
+}
+
+# 1.1.06-------
+#' 读取数据
+#'
+#' @param conn 连接
+#' @param MCode 物料
+#' @param MProp 属性
+#' @param PLMBatchnum 批次
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' Item_ReadItem_One
+Item_ReadItem_One <- function(conn=conn_vm_erp_test(),
+                         MCode='3.02.09.001025',
+                         MProp='外购',
+                         PLMBatchnum='ECN00000002') {
+
+  #获取处理批次
+  sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
+where PLMBatchnum  ='",PLMBatchnum,"'  and MProp = N'",MProp,"'  and MCode ='",MCode,"' ")
+  # print(sql)
+
+  #返回结果
+  res <- tsda::sql_select(conn = conn,sql_str = sql)
+
+  #返回结果
+  return(res)
+
+}
+#1.1.07 更新任务表的状态
+#' 更新任务单状态
+#'
+#' @param conn 连接
+#' @param MCode 物料代码
+#' @param MProp 物料名称
+#' @param PLMBatchnum 批次号
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' Item_updateTaskStatus_One()
+Item_updateTaskStatus_One <- function(conn=conn_vm_erp_test(),
+                              MCode='3.02.09.001025',
+                              MProp='外购',
+                              PLMBatchnum='ECN00000002') {
+  sql <- paste0("update a set ERPDate =  GETDATE(),ERPOperation = 'R'  from PLMtoERP_Item a
+where PLMBatchnum ='",PLMBatchnum,"'  and MCode ='",MCode,"' and MProp ='",MProp,"'")
+  tsda::sql_update(conn,sql_str = sql)
+
+}
 
 
 # 1.1写入一行物料数据--------
@@ -359,6 +580,172 @@ Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
 #写入代码：
 #处理一行物料信息
 #外购与委外都没有成本对象
+#获取物料
+FItemId = item_GetInterId(conn_erp = conn,FItemNumber = MCode)
+#读取传过来的信息
+res <- Item_ReadItem_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
+if(FItemId >0){
+  #物料已经存在
+  #说明物料编码已经存在修改相关的信息即可
+  if(MProp == '外购'){
+    #1.1A外购物料修改处理----
+
+
+  }else if(MProp == '自制'){
+    #1.1B自制物料修改处理----
+
+
+  }else if(MProp == '委外加工'){
+    #1.1C委外加工物料修改处理----
+
+
+  }else{
+
+    #1.1D其他属性物料修改处理----
+
+
+  }
+}else{
+  #物料不存在
+  #传入新分配的物料编码
+  FNumber = Item_getUnAllocateNumber(conn = conn,MProp = MProp)
+  #分配数据
+  res$FNumber <-  FNumber
+  res$FBatchNo <- PLMBatchnum
+  res$FIsdo <- 0
+  FItemId <- Item_getUnAllocateItemId(conn = conn,FNumber = FNumber)
+  res$FItemId <- FItemId
+  #上级物料编码
+  res$FParentNumber <- mdmpkg::mdm_getParentNumber(MCode)
+  try(tsda::db_writeTable(conn = conn,table_name = 't_item_rdsInput',r_object = res,append = T))
+  #更新分配结果表
+  sql_rdsroom_upd <- paste0("update a set a.fnumber_new = '",MCode,"',a.FFlag =1  from  t_item_rdsroom a
+                            where FNumber = '",FNumber,"' ")
+  tsda::sql_update(conn=conn,sql_str = sql_rdsroom_upd)
+  #更新内码,不需要更新物料内码
+  # sql_rdsInput_itemID <- paste0("  update b  set   b.fitemid = a.fitemid  from  t_item_rdsroom a
+  # inner join  t_item_rdsInput b
+  # on a.fnumber=b.fnumber
+  # where  a.fitemclassid =4  and b.fnumber = '",FNumber,"'")
+  # tsda::sql_update(conn,sql_str = sql_rdsInput_itemID)
+  #
+
+  #1.7 处理物料主表----
+  sql_item_rds <- paste0("update  a set  a.FNumber =b.MCode ,a.FName=b.MName,a.fparentid = i.FItemID   from t_item_rds a
+inner join  t_item_rdsInput b
+on a.fitemid = b.fitemid
+inner join t_item  i
+on b.fParentNumber = i.FNumber
+where  a.fnumber = '",FNumber,"'")
+  tsda::sql_update(conn,sql_str = sql_item_rds)
+  #处理物料核心表----
+  sql_item_core <- paste0("update a set    a.FNumber = b.MCode ,a.FName = b.MName ,a.FModel = b.Spec  from t_ICItemCore a
+inner join  t_item_rdsInput b
+on a.fitemid = b.fitemid
+
+where  a.fnumber = '",FNumber,"'")
+  tsda::sql_update(conn,sql_str = sql_item_core)
+  #处理物料自定义表----
+  sql_item_custom <- paste0("update a set   a.F_119 = b.MDesc   from t_ICItemCustom a
+inner join  t_item_rdsInput b
+on a.fitemid = b.fitemid
+
+where  b.fitemid =  ",FItemId)
+  tsda::sql_update(conn,sql_str = sql_item_custom)
+  #更新物料的单位----
+  sql_item_base <- paste0("update a set  FUnitID = m.FMeasureUnitID,FUnitGroupID=m.FUnitGroupID,
+FOrderUnitID =m.FMeasureUnitID,
+FProductUnitID =m.FMeasureUnitID,
+FSaleUnitID =m.FMeasureUnitID,
+FStoreUnitID = m.FMeasureUnitID
+from t_ICItemBase a
+inner join  t_item_rdsInput b
+on a.fitemid = b.fitemid
+inner join t_MeasureUnit m
+on b.UOM  = m.FName
+where where  b.fitemid =  ",FItemId)
+  tsda::sql_update(conn_erp,sql_str = sql_item_base)
+  #1.8将物料从缓存区更新到主表------
+  sql_item_pushBack <- paste0("INSERT INTO [dbo].t_item
+           ([FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture])
+ select [FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture]
+		   from t_item_rds
+		   where fitemid = ",FItemId)
+  tsda::sql_update(conn,sql_str = sql_item_pushBack)
+
+  #1.9更新物料表的状态---
+  sql_itemInput_updateStatus <- paste0("update  b set FIsDo =1   from  t_item_rdsInput b
+where   b.fitemid = ",FItemId)
+  tsda::sql_update(conn,sql_str = sql_itemInput_updateStatus)
+  #1.10更新中间表的状态-------
+  #读取配置文件
+   Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
+
+  if(MProp == '外购'){
+    #1.1E外购物料新增处理----
+
+
+  }else if(MProp == '自制'){
+    #1.1F自制物料新增处理----
+
+
+  }else if(MProp == '委外加工'){
+    #1.1G委外加工物料新增处理---
+
+
+  }else{
+    #1.1H其他属性物料新增处理-----
+
+
+  }
+
+}
+
+
 
 #写入日志表
 
