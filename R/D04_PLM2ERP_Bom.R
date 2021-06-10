@@ -51,7 +51,7 @@ where i.FNumber ='",PMCode,"'")
     #确认一下一个产品是否会有2个BOM
     res <- r$FInterID[1]
   }else{
-    res<-0
+    res<- BOM_getNewInterId(conn=conn)
   }
 
   return(res)
@@ -67,6 +67,7 @@ where i.FNumber ='",PMCode,"'")
 #' @param PLMBatchnum  批号
 #' @param conn 连接
 #' @param PMCode 更新产品编码
+#' @param FInterID id
 #'
 #' @return 返回值
 #' @include C_util.R
@@ -76,7 +77,7 @@ where i.FNumber ='",PMCode,"'")
 #' BOM_getNewBillTpl_Body()
 BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
                                    PMCode='2.104.20.00034',
-                                   PLMBatchnum='BOM00000002'
+                                   PLMBatchnum='BOM00000002',FInterID =0
 
 
 ) {
@@ -106,11 +107,11 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     data_p$FItemID <- data_bom$FItemID
     data_p$FEntryID <- 1:ncount
     # 针对内码进行处理
-    var_InterID <- bom_getInterId(conn = conn,PMCode = PMCode)
-    #如果存在内码
-    if(var_InterID >0){
+    var_InterID <- FInterID
+
       #如果已经存在内码
-      data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
+      #data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
+      data_p$FInterID <- rep(var_InterID,ncount)
       # 针对BOM数据进行处理，将数据写入历史缓存表
       sql_bak_history_bom_body <- paste0("	insert into rds_ICBOMChild
    select * from ICBOMChild where FInterID =  ",var_InterID)
@@ -126,10 +127,7 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
       sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
       tsda::sql_update(conn,sql_del_bom_head)
 
-    }else{
-      data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
 
-    }
 
     data_p$FUnitID <- data_bom$FUnitID
     data_p$FQty <- as.numeric(data_bom$FQty)
@@ -165,6 +163,7 @@ select *   from rds_icbomChild_input ")
 #' @param conn 连接
 #' @param PMCode 物料代码
 #' @param PLMBatchnum  批号
+#' @param FInterID id
 #'
 #' @return  返回值
 #' @export
@@ -173,7 +172,7 @@ select *   from rds_icbomChild_input ")
 #' BOM_getNewBillTpl_Head()
 BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
                                    PMCode =  '2.104.20.00034',
-                                   PLMBatchnum='BOM00000002'
+                                   PLMBatchnum='BOM00000002',FInterID =0
 ) {
   #获取模板数据
   sql <- paste0("SELECT [FInterID]
@@ -220,7 +219,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
     #针对数据进行替换
     data_p$FItemID <- data_bom$FItemID
     #data_p$FEntryID <- 1:ncount
-    data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
+    data_p$FInterID <- FInterID
     data_p$FUnitID <- data_bom$FUnitID
     bom_bill_version <- strsplit(data_bom$BOMRevCode,'/')
     data_p$FBomNumber <- bom_bill_version[[1]][1]
@@ -324,11 +323,11 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
     lapply(1:ncount, function(i){
       PMCode <- bom_list$PMCode[i]
       PLMBatchnum <- bom_list$PLMBatchNum[i]
-
+       FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
       #写入BOM表体
-      BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
+      BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID = FInterID)
       #写入BOM报头
-      BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
+      BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
       #更新BOM表的状态
       bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
 
