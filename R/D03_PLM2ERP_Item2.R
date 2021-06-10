@@ -525,7 +525,7 @@ Item_ReadItem_One <- function(conn=conn_vm_erp_test(),
   #获取处理批次
   sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
 where PLMBatchnum  ='",PLMBatchnum,"'  and MProp = N'",MProp,"'  and MCode ='",MCode,"' ")
-  # print(sql)
+   print(sql)
 
   #返回结果
   res <- tsda::sql_select(conn = conn,sql_str = sql)
@@ -557,6 +557,57 @@ where PLMBatchnum ='",PLMBatchnum,"'  and MCode ='",MCode,"' and MProp ='",MProp
 
 }
 
+#1.07 获取成本对象人上级代码
+#' 获取成本对象的代码
+#'
+#' @param conn 链接
+#' @param MCode 物料
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' Item_GetParentItemId_costObj()
+Item_GetParentItemId_costObj <- function(conn=conn_vm_erp_test(),
+                                         MCode='3.02.09.001025') {
+  FParentNumber_CB = mdmpkg::mdm_getParentNumber(MCode)
+  sql <- paste0("select  FItemID from t_item where FNumber ='",FParentNumber_CB,"' and FItemClassID = 2001")
+  r <- tsda::sql_select(conn,sql_str = sql)
+  ncount = nrow(r)
+  if(ncount >0){
+    res <- r$FItemID
+  }else{
+    res <- 0
+  }
+  return(res)
+}
+
+#' to get the obj Itemid
+#'
+#' @param conn  conn
+#' @param FNumber  new number for prebook
+#'
+#' @return return value
+#' @export
+#'
+#' @examples
+#' Item_getItemID_costObj()
+Item_getItemID_costObj <- function(conn=conn_vm_erp_test2(),
+                                         FNumber='RDS.02.000002') {
+
+  sql <- paste0("select FItemId from t_item_rdsRoom where FPropTYPE ='自制' and FItemClassId =2001 and fnumber ='",FNumber,"'")
+  #print(sql)
+  r <- tsda::sql_select(conn,sql_str = sql)
+  #print(r)
+  ncount = nrow(r)
+  if(ncount >0){
+    res <- r$FItemId
+  }else{
+    res <- 0
+  }
+  return(res)
+}
+
 
 # 1.1写入一行物料数据--------
 #' 写入一行物料数据
@@ -584,6 +635,9 @@ Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
 FItemId = item_GetInterId(conn_erp = conn,FItemNumber = MCode)
 #读取传过来的信息
 res <- Item_ReadItem_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
+print('step1 ')
+print(res)
+print(FItemId)
 if(FItemId >0){
   #物料已经存在
   #说明物料编码已经存在修改相关的信息即可
@@ -605,10 +659,15 @@ if(FItemId >0){
 
 
   }
+  #更新状态
+  Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
 }else{
   #物料不存在
   #传入新分配的物料编码
+  print('s1')
   FNumber = Item_getUnAllocateNumber(conn = conn,MProp = MProp)
+  print('s1')
+  print(FNumber)
   #分配数据
   res$FNumber <-  FNumber
   res$FBatchNo <- PLMBatchnum
@@ -618,7 +677,7 @@ if(FItemId >0){
   #上级物料编码
   res$FParentNumber <- mdmpkg::mdm_getParentNumber(MCode)
   try(tsda::db_writeTable(conn = conn,table_name = 't_item_rdsInput',r_object = res,append = T))
-  #更新分配结果表
+  #更新分配结果表,处理逻辑包含成本对象
   sql_rdsroom_upd <- paste0("update a set a.fnumber_new = '",MCode,"',a.FFlag =1  from  t_item_rdsroom a
                             where FNumber = '",FNumber,"' ")
   tsda::sql_update(conn=conn,sql_str = sql_rdsroom_upd)
@@ -663,8 +722,8 @@ inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
 inner join t_MeasureUnit m
 on b.UOM  = m.FName
-where where  b.fitemid =  ",FItemId)
-  tsda::sql_update(conn_erp,sql_str = sql_item_base)
+ where  b.fitemid =  ",FItemId)
+  tsda::sql_update(conn,sql_str = sql_item_base)
   #1.8将物料从缓存区更新到主表------
   sql_item_pushBack <- paste0("INSERT INTO [dbo].t_item
            ([FItemID]
@@ -731,6 +790,70 @@ where   b.fitemid = ",FItemId)
 
   }else if(MProp == '自制'){
     #1.1F自制物料新增处理----
+     #成本对象的处理
+      FParentItemID_obj = Item_GetParentItemId_costObj(conn = conn,MCode = MCode)
+      FItemId_obj = Item_getItemID_costObj(conn=conn,FNumber = FNumber )
+      sql_obj_rds <- paste0("update  a set  a.FNumber =  '",MCode,"' ,a.FName=   '",res$MName,"'  ,  a.fparentid =  ",FParentItemID_obj,"   from t_item_rds a
+                            where a.FItemId =  ",FItemId_obj)
+      tsda::sql_update(conn,sql_str = sql_obj_rds)
+      #wirte back
+      sql_obj_pushBack <- paste0("INSERT INTO [dbo].t_item
+           ([FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture])
+ select [FItemID]
+           ,[FItemClassID]
+           ,[FExternID]
+           ,[FNumber]
+           ,[FParentID]
+           ,[FLevel]
+           ,[FDetail]
+           ,[FName]
+           ,[FUnUsed]
+           ,[FBrNo]
+           ,[FFullNumber]
+           ,[FDiff]
+           ,[FDeleted]
+           ,[FShortNumber]
+           ,[FFullName]
+           ,[UUID]
+           ,[FGRCommonID]
+           ,[FSystemType]
+           ,[FUseSign]
+           ,[FChkUserID]
+           ,[FAccessory]
+           ,[FGrControl]
+           ,[FHavePicture]
+		   from t_item_rds
+		   where fitemid = ",FItemId_obj)
+      tsda::sql_update(conn,sql_str = sql_obj_pushBack)
+      # 更新成本对象表
+       sql_obj_table <- paste0("update  a set  a.FNumber =  '",MCode,"' ,a.FName=   '",res$MName,"'  ,  a.fparentid =  ",FParentItemID_obj,"   from cbCostObj a
+                            where a.FItemId =  ",FItemId_obj)
+       tsda::sql_update(conn,sql_str = sql_obj_table)
+
+
+
 
 
   }else if(MProp == '委外加工'){
@@ -792,5 +915,29 @@ Item_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
   }
 
+
+}
+
+#' 清楚BUG
+#'
+#' @param conn 链接
+#' @param FNumber 代码
+#'
+#' @return return value
+#' @export
+#'
+#' @examples
+#' item_debug_clear()
+item_debug_clear <- function(conn=conn_vm_erp_test(),FNumber='3.02.02.001293') {
+  sql01 = paste0("delete  from   t_item_rdsRoom  where fnumber_new =  '",FNumber,"'")
+  sql02 = paste0("delete  from t_item_rdsInput where mcode =  '",FNumber,"'")
+  sql03 = paste0("delete  from t_item_rds where  fnumber =  '",FNumber,"'")
+  sql04 = paste0("delete   from t_icitem where  fnumber =  '",FNumber,"'")
+  sql05 = paste0("delete   from t_item where  fnumber =  '",FNumber,"'")
+  tsda::sql_update(conn,sql01)
+  tsda::sql_update(conn,sql02)
+  tsda::sql_update(conn,sql03)
+  tsda::sql_update(conn,sql04)
+  tsda::sql_update(conn,sql05)
 
 }

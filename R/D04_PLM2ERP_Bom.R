@@ -93,6 +93,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
   where PMCode ='",PMCode,"' and PLMBatchnum='",PLMBatchnum,"'
   and CMCode <>'' ")
   data_bom <- tsda::sql_select(conn,sql_bom)
+  print('data_bom')
+  print(data_bom)
 
   ncount <- nrow(data_bom)
 
@@ -174,7 +176,35 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
                                    PLMBatchnum='BOM00000002'
 ) {
   #获取模板数据
-  sql <- paste0("select * from  rds_icbom_tpl_head")
+  sql <- paste0("SELECT [FInterID]
+      ,[FBomNumber]
+      ,[FBrNo]
+      ,[FTranType]
+      ,[FCancellation]
+      ,[FStatus]
+      ,[FVersion]
+      ,[FUseStatus]
+      ,[FItemID]
+      ,[FUnitID]
+      ,[FAuxPropID]
+      ,[FAuxQty]
+      ,[FYield]
+      ,[FNote]
+      ,[FCheckID]
+      ,[FCheckDate]
+      ,[FOperatorID]
+      ,[FEntertime]
+      ,[FRoutingID]
+      ,[FBomType]
+      ,[FCustID]
+      ,[FParentID]
+      ,[FAudDate]
+      ,[FImpMode]
+      ,[FPDMImportDate]
+      ,[FBOMSkip]
+      ,[FUseDate]
+      ,[FHeadSelfZ0135]
+  FROM [dbo].[rds_icbom_tpl_head]")
   data_tpl <- tsda::sql_select(conn,sql)
   #获取实际数据
   sql_bom <- paste0("select FParentItemId as FItemID,FParentUnitID as FUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
@@ -213,7 +243,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
     #写入BOM缓存表表头信息
     tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
     #将数据写入正式表
-    sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135,FPrintCount)
+    sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
 select *   from rds_icbom_input ")
     tsda::sql_update(conn,sql_write_bom_head)
     #清空缓存表
