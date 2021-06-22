@@ -11,7 +11,7 @@
 #' erp_materia_read()
 erp_materia_read <-function(file="data-raw/VM物料批量修改模板.xlsx",sheet = "物料",lang='cn'){
   #library(readxl)
-  mtrl_fp_info <- readxl::read_excel(file(),
+  mtrl_fp_info <- readxl::read_excel(file,
                                      sheet = sheet, col_types = c("text",
                                                                  "text", "text", "text", "text", "text",
                                                                  "text", "text", "numeric", "numeric",
