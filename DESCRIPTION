@@ -20,3 +20,4 @@ Collate:
     'D03_PLM2ERP_Item.R'
     'D03_PLM2ERP_Item2.R'
     'D04_PLM2ERP_Bom.R'
+    'ERP_material.R'
