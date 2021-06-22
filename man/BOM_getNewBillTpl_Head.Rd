@@ -7,7 +7,8 @@
 BOM_getNewBillTpl_Head(
   conn = conn_vm_erp_test(),
   PMCode = "2.104.20.00034",
-  PLMBatchnum = "BOM00000002"
+  PLMBatchnum = "BOM00000002",
+  FInterID = 0
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ BOM_getNewBillTpl_Head(
 \item{PMCode}{物料代码}
 
 \item{PLMBatchnum}{批号}
+
+\item{FInterID}{id}
 }
 \value{
 返回值
