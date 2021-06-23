@@ -219,5 +219,43 @@ where b.FUseStatus = 0 and FIsDo =0")
 }
 
 
+#' ERP读取PLM传入的物料数据
+#'
+#' @param conn 连接
+#' @param FStartDate 开始日期
+#' @param FEndDate 结束日期
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' erp_getItemListFromPlm()
+erp_getItemListFromPlm <- function(conn=conn_vm_erp_test(),FStartDate='2021-06-01',FEndDate='2021-06-10') {
+
+sql <- paste0("select MCode as FNumber,MName as FName,Spec as FModel,MProp as FItemClassName,'数量组' as FUnitGroupName,
+UOM as FUnitName,MDesc as FDescription,0 as FFixLeadTime,1 as FSecInv,
+case MProp when '外购' then '抽检'  else '免检' end  as FWgInspeName,
+case MProp when '自制' then '全检'  else '免检' end  as FPropInspecName,
+case MProp when '委外加工' then '全检'  else '免检' end  as FWwInspecName,
+'否'  as FIsLowValueItem
+from PLMtoERP_Item
+where ERPDate >='",FStartDate,"'  and ERPDate <='",FEndDate,"'
+and MCode not in
+(select FNumber from rds_item_BatchUpdate_input
+)")
+res <- tsda::sql_select(conn,sql)
+ncount <- nrow(res)
+if(ncount >0){
+ names(res) <-c('代码',	'名称',	'规格型号',	'物料属性_FName',	'计量单位组_FName',	'基本计量单位_FName',	'Description',
+                '固定提前期',	'安全库存数量',	'采购检验方式_FName',	'产品检验方式_FName',	'委外加工检验方式_FName',	'是否为低值易耗'
+)
+}
+return(res)
+}
+
+
+
+
+
 
 
