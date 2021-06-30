@@ -74,6 +74,12 @@ conn_vm_erp_prd_aux <- function() {
 
 }
 
+conn_vm_erp_prd_aux2 <- function() {
+  res <-tsda::sql_conn_common(ip = '192.168.0.2',user_name = 'rds',password = 'rds@2021',db_name = 'AIS20140904110155')
+  return(res)
+
+}
+
 #' 域华生产环境的连接数库设置
 #'
 #' @return
@@ -88,6 +94,20 @@ conn_vm_erp_prd <- function() {
 
 }
 
+
+#' 域华生产环境的连接数库设置
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' conn_vm_erp_prd2()
+conn_vm_erp_prd2 <- function() {
+  #获取链接信息
+  res <-conn_vm_erp_prd_aux2()
+  return(res)
+
+}
 
 # 2.0 PLM链接信息设置-------
 # 2.1 测试环境的PLM连接信息设置-----
