@@ -231,6 +231,8 @@ where b.FUseStatus = 0 and FIsDo =0")
 #' @examples
 #' erp_getItemListFromPlm()
 erp_getItemListFromPlm <- function(conn=conn_vm_erp_test(),FStartDate='2021-06-01',FEndDate='2021-06-10') {
+  #仅对申请状态的物料进行处理
+  #APP 打头的物料
 
 sql <- paste0("select MCode as FNumber,MName as FName,Spec as FModel,MProp as FItemClassName,'数量组' as FUnitGroupName,
 UOM as FUnitName,MDesc as FDescription,0 as FFixLeadTime,1 as FSecInv,
@@ -240,7 +242,7 @@ case MProp when '委外加工' then '全检'  else '免检' end  as FWwInspecNam
 '否'  as FIsLowValueItem
 from PLMtoERP_Item
 where ERPDate >='",FStartDate,"'  and ERPDate <='",FEndDate,"'
-and MCode not in
+and PLMBatchnum like 'APP%'  and MCode not in
 (select FNumber from rds_item_BatchUpdate_input
 )")
 res <- tsda::sql_select(conn,sql)

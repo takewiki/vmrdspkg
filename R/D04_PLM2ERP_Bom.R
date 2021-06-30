@@ -423,6 +423,49 @@ PLM_BOM_ECN <- function(config_file = "config/conn_k3.R",data_bom) {
 
 
 
+#' 增加BOM导入前的预检验
+#'
+#' @param conn 连接
+#' @param FNumber 代码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' ERP_BOM_preCheck()
+ERP_BOM_preCheck <- function(conn=conn_vm_erp_test(),FNumber='0.109.06.03') {
+  #物料检查
+
+  sql1 <- paste0("select FItemID from t_ICItem where FNumber='",FNumber,"'")
+  res1 <- tsda::sql_select(conn,sql1)
+  ncount1 <- nrow(res1)
+  #BOM检验
+  sql2<- paste0("select FBOMNumber from ICBOM  a
+inner join t_ICItem b
+on a.FItemID = b.FItemID
+where b.FNumber ='",FNumber,"'")
+  res2 <- tsda::sql_select(conn,sql2)
+  ncount2 <- nrow(res2)
+  if(ncount1  > 0){
+    if(ncount2 >0){
+      info =2
+    }else{
+      info =1
+    }
+
+  }else{
+    info = 0
+  }
+
+  return(info)
+
+}
+
+
+
+
+
+
 
 
 
