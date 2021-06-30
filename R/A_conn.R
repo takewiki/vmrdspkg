@@ -142,6 +142,27 @@ conn_vm_plm_prd <- function() {
 
 
 
+conn_vm_plm_prd_aux2 <- function() {
+  res <-tsda::sql_conn_common(ip = '192.168.0.9',user_name = 'infodba',password = 'infodba',db_name = 'TC4K3DB')
+  return(res)
+
+}
+
+#' 生产环境的连接信息配置
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' conn_vm_plm_prd2()
+conn_vm_plm_prd2 <- function() {
+  #获取链接信息
+  res <-conn_vm_plm_prd_aux2()
+  return(res)
+
+}
+
+
 
 
 

@@ -272,9 +272,13 @@ select *   from rds_icbom_input ")
 bom_readIntoERP_updateStatus<- function(conn=conn_vm_erp_test(),
                                         PMCode =  '2.104.20.00034',
                                         PLMBatchnum='BOM00000002') {
-sql <- paste0("update a set  ERPOperation='R',ERPDate =GETDATE()
+  ERP_DATE = as.character(Sys.time())
+sql <- paste0("update a set  ERPOperation='R',ERPDate = '",ERP_DATE,"'
               from PLMtoERP_BOM  a where PMCode ='",PMCode,"'
               and PLMBatchnum='",PLMBatchnum,"'")
+# sql <- paste0("update a set  ERPOperation='R',ERPDate =GETDATE()
+#               from PLMtoERP_BOM  a where PMCode ='",PMCode,"'
+#               and PLMBatchnum='",PLMBatchnum,"'")
 try(
   tsda::sql_update(conn,sql)
 )

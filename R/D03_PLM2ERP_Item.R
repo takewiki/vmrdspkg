@@ -336,7 +336,11 @@ where
   cfg_tc <- tsda::conn_config(config_file = config_file)
   #打开连接
   conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
-  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+  # sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+  #                       from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
+  #                       and MProp = N'外购'")
+  ERP_DATE = as.character(Sys.time())
+  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate= '",ERP_DATE,"'
                         from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
                         and MProp = N'外购'")
   tsda::sql_update(conn_tc,sql_str = sql_itemInput_updateStatus)
@@ -594,7 +598,13 @@ where
   cfg_tc <- tsda::conn_config(config_file = config_file)
   #打开连接
   conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
-  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+
+
+  # sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+  #                       from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
+  #                       and MProp = N'自制'")
+  ERP_DATE = as.character(Sys.time())
+  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate= '",ERP_DATE,"'
                         from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
                         and MProp = N'自制'")
   tsda::sql_update(conn_tc,sql_str = sql_itemInput_updateStatus)
@@ -826,9 +836,13 @@ where
   cfg_tc <- tsda::conn_config(config_file = config_file)
   #打开连接
   conn_tc <- tsda::conn_open(conn_config_info = cfg_tc)
-  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+  ERP_DATE = as.character(Sys.time())
+  sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate= '",ERP_DATE,"'
                         from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
                         and MProp = N'委外加工'")
+  # sql_item_tc <- paste0("  update a set ERPOperation ='R',ERPDate=GETDATE()
+  #                       from PLMtoERP_Item  a  where PLMBatchnum ='",batchNo,"'
+  #                       and MProp = N'委外加工'")
   tsda::sql_update(conn_tc,sql_str = sql_itemInput_updateStatus)
 
 

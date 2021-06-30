@@ -381,6 +381,7 @@ where PLMDate >'",last_date,"'")
       tsda::db_writeTable(conn = conn_erp,table_name = 'rds_dataSync_log',r_object = data_log,append = TRUE)
     })
     #更新PLM库的状态
+
     ERP_DATE = as.character(Sys.time())
     sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_BOM a
 where PLMDate >'",last_date,"'")
