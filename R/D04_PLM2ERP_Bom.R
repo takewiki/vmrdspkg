@@ -58,6 +58,39 @@ where i.FNumber ='",PMCode,"'")
 
 }
 
+#' 获取BOM的产品版本信息
+#'
+#' @param conn 连接
+#' @param PMCode 代码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' bom_getBomVersionNumber()
+bom_getBomVersionNumber <- function(conn=conn_vm_erp_test(),PMCode='2.104.20.00034') {
+
+  # 待更新
+
+  sql <- paste0("select FVersion  from ICBOM  a
+inner join t_ICItem i
+on a.FItemID = i.fitemid
+where i.FNumber ='",PMCode,"'")
+  r <- tsda::sql_select(conn,sql)
+  ncount <- nrow(r)
+  if(ncount >0){
+    #确认一下一个产品是否会有2个BOM
+    res <- r$FVersion[1]
+  }else{
+    res<- NULL
+  }
+
+  return(res)
+
+}
+
+
+
 #0. BOM在ERP中处理的核心函数-----------
 
 

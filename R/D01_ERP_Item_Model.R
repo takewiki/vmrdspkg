@@ -157,6 +157,66 @@ item_selectValue_ERP2PLM<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_v
 }
 
 
+#' get the initial item value
+#'
+#' @param conn_erp  conn1
+#' @param conn_plm conn2
+#' @param FNumbers 增加多选的物料编码
+#'
+#' @return return value
+#' @export
+#'
+#' @examples
+#' item_selectValue_ERP2PLM_multi()
+item_selectValue_ERP2PLM_multi<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_vm_plm_prd(),FNumbers) {
+  FNumbers_sql <- sql_Fnumber_multi(FNumbers)
+  #支持多选的情况处理
+  sql <-  paste0("select * from  rds_md_item4TC_Test
+where MCode in (",FNumbers_sql,")")
+  r <- tsda::sql_select(conn_erp,sql)
+  print(str(r))
+  r$PLMDate <-  as.character(r$PLMDate)
+  r$PLMOperation <- as.character(r$PLMOperation)
+  ncount =nrow(r)
+  if (ncount >0){
+    #本地写入结果
+
+    tsda::db_writeTable(conn = conn_erp,table_name = 'ERPtoPLM_Item',r_object = r,append = T)
+
+    #写入PLM数据库
+    tsda::db_writeTable(conn = conn_plm,table_name = 'ERPtoPLM_Item_Input',r_object = r,append = T)
+    sql_ins <-paste0("INSERT INTO [dbo].[ERPtoPLM_Item]
+           ([MCode]
+           ,[MName]
+           ,[Spec]
+           ,[MDesc]
+           ,[UOM]
+           ,[MProp]
+           ,[PLMOperation]
+           ,[ERPOperation]
+           ,[PLMDate]
+           ,[ERPDate])
+           select * from ERPtoPLM_Item_Input
+
+                     ")
+
+
+    tsda::sql_update(conn = conn_plm,sql_str = sql_ins)
+    sql_truncate <- paste0(" truncate table  ERPtoPLM_Item_Input ")
+    tsda::sql_update(conn = conn_plm,sql_str = sql_truncate)
+
+
+  }
+
+  return(r)
+
+
+
+}
+
+
+
+
 
 
 #' get the initial item value

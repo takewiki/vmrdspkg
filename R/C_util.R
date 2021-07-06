@@ -203,5 +203,20 @@ bom_getBillGroupID <- function(conn=conn_vm_erp_test(),FItemNumber='2.104.20.000
 
 
 
+#' 针对物料编码进行处理
+#'
+#' @param FNumbers 物料编码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' sql_Fnumber_multi()
+sql_Fnumber_multi <- function(FNumbers='100.01,100.02') {
+  bb  = strsplit(FNumbers,",")
+  res =paste0("'",bb[[1]],"'",collapse = ",")
+  return(res)
+
+}
 
 

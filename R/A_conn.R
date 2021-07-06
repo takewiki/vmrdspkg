@@ -183,6 +183,59 @@ conn_vm_plm_prd2 <- function() {
 }
 
 
+#' 读取配置文件并获取连接信息
+#'
+#' @param file_name 文件名
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' conn_config_read()
+conn_config_read <- function(file_name="config/conn_erp.xlsx"){
+  #library(readxl)
+  data <- readxl::read_excel("config/conn_erp.xlsx",
+                         sheet = "conn")
+  ip =  as.character(data$ip[1])
+  user_name = as.character(data$user_name[1])
+  password = as.character(data$password[1])
+  db_name = as.character(data$db_name[1])
+  port = as.integer(data$port[1])
+  res <-tsda::sql_conn_common(ip = ip,user_name = user_name,password = password,db_name = db_name,port = port)
+  return(res)
+
+}
+
+#' 写入配置文件
+#'
+#' @param file_name 文件名
+#' @param ip 地址
+#' @param port 端口
+#' @param user_name 用户名
+#' @param password 密码
+#' @param db_name 数据库名称
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' conn_config_write()
+conn_config_write <- function(file_name="config/conn_erp.xlsx",
+                  ip='123.207.201.140',
+                  port=1433,
+                  user_name='sa',
+                  password='rds@123',
+                  db_name='AIS20140904110155'
+){
+
+  data <- data.frame(ip,port,user_name,password,db_name,stringsAsFactors = F)
+  res <- list(data)
+  names(res) <-"conn"
+  openxlsx::write.xlsx(res,file_name)
+
+}
+
+
 
 
 
