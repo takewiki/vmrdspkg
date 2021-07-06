@@ -194,7 +194,7 @@ conn_vm_plm_prd2 <- function() {
 #' conn_config_read()
 conn_config_read <- function(file_name="config/conn_erp.xlsx"){
   #library(readxl)
-  data <- readxl::read_excel("config/conn_erp.xlsx",
+  data <- readxl::read_excel(file_name,
                          sheet = "conn")
   ip =  as.character(data$ip[1])
   user_name = as.character(data$user_name[1])
