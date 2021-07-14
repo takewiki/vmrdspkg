@@ -115,10 +115,14 @@ ERP_Item_Disable <- function(config_file = "config/conn_k3.R",data_item) {
 item_selectValue_ERP2PLM<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_vm_plm_prd()) {
 
   sql <-  paste0("  select * from  rds_md_item4TC_Test")
+  #其中时间取的数据库服务器的时间
   r <- tsda::sql_select(conn_erp,sql)
   print(str(r))
   r$PLMDate <-  as.character(r$PLMDate)
   r$PLMOperation <- as.character(r$PLMOperation)
+  #针对ERP时间进行修正
+  r$ERPDate <- as.character(Sys.time())
+
   ncount =nrow(r)
   if (ncount >0){
     #本地写入结果
