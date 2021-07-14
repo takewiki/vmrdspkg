@@ -551,7 +551,10 @@ Item_updateTaskStatus_One <- function(conn=conn_vm_erp_test(),
                               MCode='3.02.09.001025',
                               MProp='外购',
                               PLMBatchnum='ECN00000002') {
-  sql <- paste0("update a set ERPDate =  GETDATE(),ERPOperation = 'R'  from PLMtoERP_Item a
+  ERP_DATE = as.character(Sys.time())
+
+  sql <- paste0("update a  set ERPOperation ='R',ERPDate= '",ERP_DATE,"'
+                        from  PLMtoERP_Item a
 where PLMBatchnum ='",PLMBatchnum,"'  and MCode ='",MCode,"' and MProp ='",MProp,"'")
   tsda::sql_update(conn,sql_str = sql)
 
