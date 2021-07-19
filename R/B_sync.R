@@ -170,6 +170,13 @@ where PLMDate >'",last_date,"'")
   data <- tsda::sql_select(conn = conn_plm,sql_str = sql)
   ncount = nrow(data)
   if(ncount > 0){
+    #针对数据进行容错性处理
+    data$MProp[data$MProp == 'Self made'] <- '自制'
+    data$MProp[data$MProp == 'Purchased'] <- '外购'
+    data$MProp[data$MProp == 'Outsourcing'] <- '委外加工'
+    data$MProp[data$MProp == 'Configuration'] <- '自制'
+
+
     #数据已经存在,写入ERP
     try({
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_Item',r_object = data,append = TRUE)
