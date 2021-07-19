@@ -171,6 +171,8 @@ where PLMDate >'",last_date,"'")
   ncount = nrow(data)
   if(ncount > 0){
     #针对数据进行容错性处理
+    #
+    #
     data$MProp[data$MProp == 'Self made'] <- '自制'
     data$MProp[data$MProp == 'Purchased'] <- '外购'
     data$MProp[data$MProp == 'Outsourcing'] <- '委外加工'

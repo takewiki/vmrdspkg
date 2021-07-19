@@ -131,6 +131,19 @@ inner join rds_item_BatchUpdate_db b
 on a.FItemID = b.FItemId
 where b.FUseStatus = 0 and FIsDo =0")
     tsda::sql_update(conn,sql_lowValue)
+    #针对低值再更新相关字段,倒冲，仓库，批次管理等
+    sql_lowValue2 <- paste0("update a set
+
+
+		a.FBatchManager = 0  ,a.FIsBackFlush =1,  a.FDefaultLoc =13149
+from t_ICItem   a
+inner join rds_item_BatchUpdate_db b
+on a.FItemID = b.FItemId
+where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+    tsda::sql_update(conn,sql_lowValue2)
+
+
+
     #更新状态
     sql_do <- paste0("update rds_item_BatchUpdate_db set  fisdo =1 where fisdo =0 ")
     tsda::sql_update(conn,sql_do)

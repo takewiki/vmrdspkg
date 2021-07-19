@@ -213,6 +213,117 @@ order by b.FStep,a.PMCode,a.CMCode ")
 }
 
 
+#' update the data value
+#'
+#' @param conn_erp conn1
+#' @param conn_plm conn2
+#' @param FNumber item number
+#'
+#' @return return value
+#' @export
+#'
+#' @examples
+#' bom_selectValue_ERP2PLM_wg()
+bom_selectValue_ERP2PLM_wg<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_vm_plm_prd(),FNumber='1.218.03.00002') {
+
+  sql <-  paste0("SELECT [PMCode]
+      ,[PMName]
+      ,[BOMRevCode]
+      ,[CMCode]
+      ,[CMName]
+      ,[ProductGroup]
+      ,[BOMCount]
+      ,[BOMUOM]
+      ,[PLMOperation]
+      ,[ERPOperation]
+      ,[PLMDate]
+      ,[ERPDate]
+      ,1 as [FLowCode]
+      ,'",FNumber,"' as [RootCode]
+  FROM [dbo].[rds_pdm_bom4TC]
+where PMCode ='",FNumber,"'")
+  r <- tsda::sql_select(conn_erp,sql)
+  r$ERPOperation <- 'W'
+  r$ERPDate <- as.character(Sys.time())
+  r$PLMDate <-  as.character(r$PLMDate)
+  r$PLMOperation <- as.character(r$PLMOperation)
+  print(str(r))
+  ncount =nrow(r)
+  if (ncount >0){
+    #本地写入结果
+
+    tsda::db_writeTable(conn = conn_erp,table_name = 'ERPtoPLM_BOM',r_object = r,append = T)
+
+    #写入PLM数据库
+    tsda::db_writeTable(conn = conn_plm,table_name = 'ERPtoPLM_BOM_Input',r_object = r,append = T)
+    sql_ins <- paste0("INSERT INTO [dbo].[ERPtoPLM_BOM]
+           ([PMCode]
+           ,[PMName]
+           ,[BOMRevCode]
+           ,[CMCode]
+           ,[CMName]
+           ,[ProductGroup]
+           ,[BOMCount]
+           ,[BOMUOM]
+           ,[PLMOperation]
+           ,[ERPOperation]
+           ,[PLMDate]
+           ,[ERPDate]
+           ,[FLowCode]
+           ,[RootCode])
+           select * from ERPtoPLM_BOM_Input ")
+    tsda::sql_update(conn = conn_plm,sql_str = sql_ins)
+    sql_truncate <- paste0(" truncate table  ERPtoPLM_BOM_Input ")
+    tsda::sql_update(conn = conn_plm,sql_str = sql_truncate)
+
+
+
+    # lapply(1:ncount, function(i){
+    #   sql_ins <- paste0("INSERT INTO [dbo].[ERPtoPLM_BOM]
+    #        ([PMCode]
+    #        ,[PMName]
+    #        ,[BOMRevCode]
+    #        ,[CMCode]
+    #        ,[CMName]
+    #        ,[ProductGroup]
+    #        ,[BOMCount]
+    #        ,[BOMUOM]
+    #        ,[PLMOperation]
+    #        ,[ERPOperation]
+    #        ,[PLMDate]
+    #        ,[ERPDate]
+    #        ,[FLowCode]
+    #        ,[RootCode])
+    #  VALUES
+    #        ('",r$PMCode[i],"'
+    #        ,N'",r$PMName[i],"'
+    #        ,N'",r$BOMRevCode[i],"'
+    #        ,N'",r$CMCode[i],"'
+    #        ,N'",r$CMName[i],"'
+    #        ,N'",r$ProductGroup[i],"'
+    #        ,'",r$BOMCount[i],"'
+    #        ,N'",r$BOMUOM[i],"'
+    #        ,NULL
+    #        ,'",r$ERPOperation[i],"'
+    #        ,NULL
+    #        ,'",r$ERPDate[i],"'
+    #        ,",r$FLowCode[i],"
+    #        ,'",r$rootcode[i],"' )")
+    #
+    #   cat(sql_ins)
+    #
+    #   tsda::sql_update(conn = conn_plm,sql_str = sql_ins)
+    # })
+
+  }
+
+  return(r)
+
+
+
+}
+
+
 
 #' update the status
 #'
@@ -250,14 +361,23 @@ bom_updateStatus_ERP2PLM<- function(conn=conn_vm_erp_test2(),FNumber='1.218.03.0
 ERPtoPLM_BOM_one<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_vm_plm_prd(),FNumber='1.218.03.00002'){
   FStep = 1
   flag<- bom_is_haveValue_ERP2PLM(conn=conn_erp,FNumber = FNumber,FStep = FStep)
-  while(flag){
-    bom_insertValue_ERP2PLM(conn = conn_erp,FNumber = FNumber,FStep = FStep)
-    FStep = FStep + 1
-    flag<- bom_is_haveValue_ERP2PLM(conn=conn_erp,FNumber = FNumber,FStep = FStep)
-    print(FStep)
+  print(flag)
+  if(flag){
+    #可以展开
+    while(flag){
+      bom_insertValue_ERP2PLM(conn = conn_erp,FNumber = FNumber,FStep = FStep)
+      FStep = FStep + 1
+      flag<- bom_is_haveValue_ERP2PLM(conn=conn_erp,FNumber = FNumber,FStep = FStep)
+      print(FStep)
+    }
+    res <- bom_selectValue_ERP2PLM(conn_erp = conn_erp,conn_plm = conn_plm,FNumber = FNumber)
+    bom_updateStatus_ERP2PLM(conn=conn_erp,FNumber = FNumber)
+  }else{
+    #全部为外购物料
+    res <-bom_selectValue_ERP2PLM_wg(conn_erp = conn_erp,conn_plm = conn_plm,FNumber = FNumber)
   }
-  res <- bom_selectValue_ERP2PLM(conn_erp = conn_erp,conn_plm = conn_plm,FNumber = FNumber)
-  bom_updateStatus_ERP2PLM(conn=conn_erp,FNumber = FNumber)
+
+
   return(res)
 
 
