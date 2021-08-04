@@ -75,7 +75,7 @@ conn_vm_erp_prd_aux <- function() {
 }
 
 conn_vm_erp_prd_aux2 <- function() {
-  res <-tsda::sql_conn_common(ip = '192.168.0.2',user_name = 'rds',password = 'rds@2021',db_name = 'AIS20140904110155')
+  res <-tsda::sql_conn_common(ip = '192.168.0.2',user_name = 'sa',password = 'Qinzhou3*(vivax',db_name = 'AIS20140904110155')
   return(res)
 
 }
