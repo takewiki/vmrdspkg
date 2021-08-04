@@ -132,15 +132,52 @@ on a.FItemID = b.FItemId
 where b.FUseStatus = 0 and FIsDo =0")
     tsda::sql_update(conn,sql_lowValue)
     #针对低值再更新相关字段,倒冲，仓库，批次管理等
-    sql_lowValue2 <- paste0("update a set
+    sql_test <- paste0("select * from rds_item_BatchUpdate_db  where  isnull(F_128,0) = 1 and  FUseStatus = 0 and FIsDo =0")
+    mydata1 <- tsda::sql_select(conn,sql_test)
+    print('debug1')
+    print(mydata1)
+
+    sql_test2 <- paste0("select
 
 
-		a.FBatchManager = 0  ,a.FIsBackFlush =1,  a.FDefaultLoc =13149
-from t_ICItem   a
+                        a.FBatchManager  ,a.FIsBackFlush,  a.FDefaultLoc
+                        from t_ICItem   a
+                        inner join rds_item_BatchUpdate_db b
+                        on a.FItemID = b.FItemId
+                        where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+    mydata2 <- tsda::sql_select(conn,sql_test2)
+    print('debug2')
+    print(mydata2)
+    #低值易消品更新相应的属性
+#     sql_lowValue2 <- paste0("update a set
+#
+#
+# 		a.FBatchManager = 0  ,a.FIsBackFlush =1,  a.FDefaultLoc =13149
+# from t_ICItem   a
+# inner join rds_item_BatchUpdate_db b
+# on a.FItemID = b.FItemId
+# where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+
+    sql_lv_part1 <- paste0("update a set		a.FBatchManager = 0
+from t_ICItemMaterial   a
 inner join rds_item_BatchUpdate_db b
 on a.FItemID = b.FItemId
 where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
-    tsda::sql_update(conn,sql_lowValue2)
+    sql_lv_part2 <- paste0("update a set		a.FIsBackFlush =1
+from t_ICItemPlan   a
+inner join rds_item_BatchUpdate_db b
+on a.FItemID = b.FItemId
+where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+    sql_lv_part3 <- paste0("update a set  a.FDefaultLoc =13149
+from t_ICItemBase   a
+inner join rds_item_BatchUpdate_db b
+on a.FItemID = b.FItemId
+where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+    tsda::sql_update(conn,sql_lv_part1)
+    tsda::sql_update(conn,sql_lv_part2)
+
+    tsda::sql_update(conn,sql_lv_part3)
+
 
 
 

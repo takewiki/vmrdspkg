@@ -177,6 +177,23 @@ where PLMDate >'",last_date,"'")
     data$MProp[data$MProp == 'Purchased'] <- '外购'
     data$MProp[data$MProp == 'Outsourcing'] <- '委外加工'
     data$MProp[data$MProp == 'Configuration'] <- '自制'
+    #针对单位进行容错性处理
+    data$UOM[data$UOM == 'each'] <-'个'
+    data$UOM[data$UOM == 'roll'] <-'卷'
+    data$UOM[data$UOM == 'bundle'] <-'捆'
+    data$UOM[data$UOM == 'set'] <-'套'
+    data$UOM[data$UOM == 'tai'] <-'台'
+    data$UOM[data$UOM == 'ba'] <-'把'
+    data$UOM[data$UOM == 'batch'] <-'批'
+    data$UOM[data$UOM == 'm'] <-'米'
+    data$UOM[data$UOM == 'cm'] <-'厘米'
+    data$UOM[data$UOM == 'foot'] <-'英尺'
+    data$UOM[data$UOM == 'inch'] <-'英寸'
+    data$UOM[data$UOM == 'bottle'] <-'瓶'
+    data$UOM[data$UOM == 'liter'] <-'升'
+    data$UOM[data$UOM == 'kg'] <-'公斤'
+    data$UOM[data$UOM == 'jin'] <-'斤'
+
 
 
     #数据已经存在,写入ERP
