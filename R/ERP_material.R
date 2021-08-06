@@ -291,7 +291,7 @@ case MProp when '自制' then '全检'  else '免检' end  as FPropInspecName,
 case MProp when '委外加工' then '全检'  else '免检' end  as FWwInspecName,
 '否'  as FIsLowValueItem
 from PLMtoERP_Item
-where ERPDate >='",FStartDate,"'  and ERPDate <='",FEndDate,"'
+where CONVERT(nvarchar(10), ERPDate, 120) >='",FStartDate,"'  and CONVERT(nvarchar(10), ERPDate, 120) <='",FEndDate,"'
 and PLMBatchnum like 'APP%'  and MCode not in
 (select FNumber from rds_item_BatchUpdate_input
 )")

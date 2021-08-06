@@ -1,7 +1,7 @@
 Package: vmrdspkg
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 3.1.0
+Version: 3.2.0
 Author: hulilei
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -21,4 +21,5 @@ Collate:
     'D03_PLM2ERP_Item.R'
     'D03_PLM2ERP_Item2.R'
     'D04_PLM2ERP_Bom.R'
+    'E01_log.R'
     'ERP_material.R'
