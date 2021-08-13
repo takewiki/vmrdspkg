@@ -10,13 +10,13 @@
 #'
 #' @examples
 #' erp_materia_read()
-erp_materia_read <-function(file="data-raw/VM物料批量修改模板V2.xlsx",sheet = "物料",lang='cn',conn=conn_vm_erp_test()){
+erp_materia_read <-function(file="data-raw/PLM传入ERP物料数据.xlsx",sheet = "物料",lang='cn',conn=conn_vm_erp_test()){
   #library(readxl)
   res <- readxl::read_excel(file,
                     sheet = sheet, col_types = c("text",
                                                 "text", "text", "text", "text", "text",
                                                 "text", "numeric", "numeric", "text",
-                                                "text", "text", "text"))
+                                                "text", "text", "text",'text'))
   ncount <- nrow(res)
   print(res)
   if(ncount >0){
@@ -33,11 +33,16 @@ erp_materia_read <-function(file="data-raw/VM物料批量修改模板V2.xlsx",sh
                      'FWgInspecName',
                      'FProdInspecName',
                      'FWwInspecName',
-                     'FIsLowValueItem')
+                     'FIsLowValueItem',
+                     'FIsBackFlush')
+      print(res)
       #写入数据库
       res$FUploadDate <- as.character(Sys.Date())
       res$FUseStatus <- 0
       res$FIsDo <-0
+      #View(res)
+      #data1 = tsda::sql_select(conn,'select * from rds_item_BatchUpdate_input')
+      #View(data1)
       tsda::db_writeTable(conn = conn,table_name = 'rds_item_BatchUpdate_input',r_object = res,append = T)
     }
   }
@@ -131,6 +136,15 @@ inner join rds_item_BatchUpdate_db b
 on a.FItemID = b.FItemId
 where b.FUseStatus = 0 and FIsDo =0")
     tsda::sql_update(conn,sql_lowValue)
+
+    #针对低值先进行处理
+    sql_backFlush <- paste0("update a set		a.FIsBackFlush =1
+from t_ICItemPlan   a
+inner join rds_item_BatchUpdate_db b
+on a.FItemID = b.FItemId
+where  isnull(b.FIsBackFlush,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
+    tsda::sql_update(conn,sql_backFlush)
+
     #针对低值再更新相关字段,倒冲，仓库，批次管理等
     sql_test <- paste0("select * from rds_item_BatchUpdate_db  where  isnull(F_128,0) = 1 and  FUseStatus = 0 and FIsDo =0")
     mydata1 <- tsda::sql_select(conn,sql_test)
@@ -289,7 +303,8 @@ UOM as FUnitName,MDesc as FDescription,0 as FFixLeadTime,1 as FSecInv,
 case MProp when '外购' then '抽检'  else '免检' end  as FWgInspeName,
 case MProp when '自制' then '全检'  else '免检' end  as FPropInspecName,
 case MProp when '委外加工' then '全检'  else '免检' end  as FWwInspecName,
-'否'  as FIsLowValueItem
+'否'  as FIsLowValueItem,
+'否'  as FIsBackFlush
 from PLMtoERP_Item
 where CONVERT(nvarchar(10), ERPDate, 120) >='",FStartDate,"'  and CONVERT(nvarchar(10), ERPDate, 120) <='",FEndDate,"'
 and PLMBatchnum like 'APP%'  and MCode not in
@@ -299,7 +314,8 @@ res <- tsda::sql_select(conn,sql)
 ncount <- nrow(res)
 if(ncount >0){
  names(res) <-c('代码',	'名称',	'规格型号',	'物料属性_FName',	'计量单位组_FName',	'基本计量单位_FName',	'Description',
-                '固定提前期',	'安全库存数量',	'采购检验方式_FName',	'产品检验方式_FName',	'委外加工检验方式_FName',	'是否为低值易耗'
+                '固定提前期',	'安全库存数量',	'采购检验方式_FName',	'产品检验方式_FName',	'委外加工检验方式_FName',	'是否为低值易耗',
+                '是否倒冲'
 )
 }
 return(res)

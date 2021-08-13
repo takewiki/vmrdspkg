@@ -5,7 +5,7 @@
 \title{物料属性批量修改}
 \usage{
 erp_materia_read(
-  file = "data-raw/VM物料批量修改模板V2.xlsx",
+  file = "data-raw/PLM传入ERP物料数据.xlsx",
   sheet = "物料",
   lang = "cn",
   conn = conn_vm_erp_test()
