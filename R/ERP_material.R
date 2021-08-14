@@ -299,13 +299,15 @@ erp_getItemListFromPlm <- function(conn=conn_vm_erp_test(),FStartDate='2021-06-0
   #APP 打头的物料
 
 sql <- paste0("select MCode as FNumber,MName as FName,Spec as FModel,MProp as FItemClassName,'数量组' as FUnitGroupName,
-UOM as FUnitName,MDesc as FDescription,0 as FFixLeadTime,1 as FSecInv,
+UOM as FUnitName,MDesc as FDescription,b.FFixLeadTime as FFixLeadTime,b.FSecInv as FSecInv,
 case MProp when '外购' then '抽检'  else '免检' end  as FWgInspeName,
 case MProp when '自制' then '全检'  else '免检' end  as FPropInspecName,
 case MProp when '委外加工' then '全检'  else '免检' end  as FWwInspecName,
 '否'  as FIsLowValueItem,
 '否'  as FIsBackFlush
-from PLMtoERP_Item
+from PLMtoERP_Item a
+left join t_ICItem b
+on a.MCode = b.FNumber
 where CONVERT(nvarchar(10), ERPDate, 120) >='",FStartDate,"'  and CONVERT(nvarchar(10), ERPDate, 120) <='",FEndDate,"'
 and PLMBatchnum like 'APP%'  and MCode not in
 (select FNumber from rds_item_BatchUpdate_input
