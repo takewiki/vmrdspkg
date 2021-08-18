@@ -1,0 +1,6 @@
+devtools::install_github('takewiki/vmrdspkg')
+
+docker run -d --restart=always --name "rstudioserver"  -p 8787:8787  -e USER=hulilei -e PASSWORD=Hoolilay889@ takewiki/rss36:v1
+
+
+docker run  -d  --restart=always -p 9898:3838    --name 'jlrds-9898'  takewiki/jlrds:1.6

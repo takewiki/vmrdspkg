@@ -164,6 +164,9 @@ data_PLMtoERP_Item_maxDate  <- function(conn=conn_vm_erp_test()){
 data_PLMtoERP_Item_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()){
   # 从ERP获取上次更新日期
   last_date <- data_PLMtoERP_Item_maxDate(conn = conn_erp)
+  if(is.na(last_date)){
+    last_date = '2021-01-01'
+  }
 
   sql <- paste0("select  *  from  PLMtoERP_Item
 where PLMDate >'",last_date,"'")
@@ -386,6 +389,9 @@ data_PLMtoERP_BOM_maxDate  <- function(conn=conn_vm_erp_test()){
 data_PLMtoERP_BOM_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()){
   # 从ERP获取上次更新日期
   last_date <- data_PLMtoERP_BOM_maxDate(conn = conn_erp)
+  if(is.na(last_date)){
+    last_date = '2021-01-01'
+  }
 
   sql <- paste0("select  *  from  PLMtoERP_BOM
 where PLMDate >'",last_date,"'")
