@@ -324,7 +324,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
     #可以根据BOm及版本信息进行判断是否写入
     #判断是否存在同版本
     #如果版本相同，则不需要回写
-    if(bom_check_batchNo_overWrite(batchNo)){
+    if(bom_check_batchNo_overWrite(batchNo = PLMBatchnum)){
 
       if(flag_bc){
         #BC物料不做处理
@@ -395,6 +395,7 @@ select *   from rds_icbom_input ")
           data_p$FUnitID <- data_bom$FUnitID
 
           #bom单号
+          var_InterID <- FInterID
 
           #BOM处于使用状态
           data_p$FUseStatus <- 1072
