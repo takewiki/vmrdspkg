@@ -123,7 +123,7 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
   #print(length(names(data_tpl)))
   #获取实际数据
   sql_bom <- paste0("select FSubItemId as FItemID,FSubUnitId as FUnitID,BOMCount as FQty
-   from  [vw_PLMtoERP_BOM]
+   from  [vw_PLMtoERP_BOM2]
   where PMCode ='",PMCode,"' and PLMBatchnum='",PLMBatchnum,"'
   and CMCode <>'' ")
   data_bom <- tsda::sql_select(conn,sql_bom)
