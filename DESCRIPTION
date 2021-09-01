@@ -1,7 +1,7 @@
 Package: vmrdspkg
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 4.2.1
+Version: 5.1.0
 Author: hulilei
 Maintainer: hulilei <hulilei@takewiki.com.cn>
 Description: More about what it does (maybe more than one line)
@@ -23,3 +23,4 @@ Collate:
     'D04_PLM2ERP_Bom.R'
     'E01_log.R'
     'ERP_material.R'
+    'rpt_bom.R'
