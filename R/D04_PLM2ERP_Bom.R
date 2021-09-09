@@ -233,8 +233,35 @@ bom_check_batchNo_overWrite <- function(batchNo ='PRD00000003'){
 
 
 
+#' 根据单据编号查询是否BOM跳层
+#'
+#' @param conn 连接
+#' @param PMCode 物料代码
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' BOM_getBomSkip()
+BOM_getBomSkip <- function(conn=conn_vm_erp_test(),
+                           PMCode =  '2.104.20.00034'){
+  sql <- paste0("select FErpClsID from t_ICItem
+where FNumber ='",PMCode,"'")
+  data <- tsda::sql_select(conn,sql)
+  ncount <- nrow(data)
+  if(ncount >0){
+    flag = data$FErpClsID[1]
+    if(flag == 2){
+      res <-1058
+    }else{
+      res <- 1059
+    }
+  }else{
+    res <- 1059
+  }
+  return(res)
 
-
+}
 
 #' 针对BOM的表头数据进行处理
 #'
@@ -290,6 +317,8 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
   data_tpl$FEntertime <- var_date
   data_tpl$FAudDate <- var_date
   data_tpl$FUseDate <- var_date
+  #添加BOM跳层的判断
+  data_tpl$FBOMSkip <- BOM_getBomSkip(conn = conn,PMCode = PMCode)
 
 
   #获取实际数据
