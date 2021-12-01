@@ -392,7 +392,7 @@ data_PLMtoERP_BOM_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=con
   if(is.na(last_date)){
     last_date = '2021-01-01'
   }
-
+   #按读取的日期做了处理
   sql <- paste0("select  *  from  PLMtoERP_BOM
 where PLMDate >'",last_date,"'")
   data <- tsda::sql_select(conn = conn_plm,sql_str = sql)
