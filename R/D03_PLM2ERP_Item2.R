@@ -714,6 +714,16 @@ on a.fitemid = b.fitemid
 
 where  b.fitemid =  ",FItemId)
   tsda::sql_update(conn,sql_str = sql_item_custom)
+  #更新物料属性表
+  #列新数据
+  timeValue = as.character(Sys.time())
+  sql_item_baseProp <- paste0("update a set   a.FCreateDate = '",timeValue,"'   from t_BaseProperty a
+inner join  t_item_rdsInput b
+on a.fitemid = b.fitemid
+
+where  b.fitemid =  ",FItemId)
+  tsda::sql_update(conn,sql_str = sql_item_baseProp)
+
   #更新物料的单位----
   sql_item_base <- paste0("update a set  FUnitID = m.FMeasureUnitID,FUnitGroupID=m.FUnitGroupID,
 FOrderUnitID =m.FMeasureUnitID,
