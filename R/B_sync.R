@@ -162,14 +162,22 @@ data_PLMtoERP_Item_maxDate  <- function(conn=conn_vm_erp_test()){
 #' @examples
 #' data_PLMtoERP_Item_fromDate()
 data_PLMtoERP_Item_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()){
+  #目前5.5根据日期进行判断
+  #后续5.6开始根据状态进行判断
   # 从ERP获取上次更新日期
-  last_date <- data_PLMtoERP_Item_maxDate(conn = conn_erp)
-  if(is.na(last_date)){
-    last_date = '2021-01-01'
-  }
+  # last_date <- data_PLMtoERP_Item_maxDate(conn = conn_erp)
+  # if(is.na(last_date)){
+  #   last_date = '2021-01-01'
+  # }
+
+#   sql <- paste0("select  *  from  PLMtoERP_Item
+# where PLMDate >'",last_date,"'")
 
   sql <- paste0("select  *  from  PLMtoERP_Item
-where PLMDate >'",last_date,"'")
+where ERPDate is null and ERPOperation is null")
+
+
+
   data <- tsda::sql_select(conn = conn_plm,sql_str = sql)
   ncount = nrow(data)
   if(ncount > 0){
@@ -216,7 +224,8 @@ where PLMDate >'",last_date,"'")
     #更新PLM库的状态
     ERP_DATE = as.character(Sys.time())
     sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_Item a
-where PLMDate >'",last_date,"'")
+
+   where ERPDate is null and ERPOperation is null")
     try({
       tsda::sql_update(conn = conn_plm,sql_str = sql_udp_plm)
     })
@@ -387,14 +396,21 @@ data_PLMtoERP_BOM_maxDate  <- function(conn=conn_vm_erp_test()){
 #' @examples
 #' data_PLMtoERP_Item_fromDate()
 data_PLMtoERP_BOM_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn_vm_erp_test()){
+  # 进行更新处理
   # 从ERP获取上次更新日期
-  last_date <- data_PLMtoERP_BOM_maxDate(conn = conn_erp)
-  if(is.na(last_date)){
-    last_date = '2021-01-01'
-  }
+  # last_date <- data_PLMtoERP_BOM_maxDate(conn = conn_erp)
+  # if(is.na(last_date)){
+  #   last_date = '2021-01-01'
+  # }
    #按读取的日期做了处理
+#   sql <- paste0("select  *  from  PLMtoERP_BOM
+# where PLMDate >'",last_date,"'")
+
   sql <- paste0("select  *  from  PLMtoERP_BOM
-where PLMDate >'",last_date,"'")
+where ERPDate is null and ERPOperation is null")
+
+
+
   data <- tsda::sql_select(conn = conn_plm,sql_str = sql)
   ncount = nrow(data)
   if(ncount > 0){
@@ -416,7 +432,7 @@ where PLMDate >'",last_date,"'")
 
     ERP_DATE = as.character(Sys.time())
     sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_BOM a
-where PLMDate >'",last_date,"'")
+where ERPDate is null and ERPOperation is null")
     try({
       tsda::sql_update(conn = conn_plm,sql_str = sql_udp_plm)
     })
