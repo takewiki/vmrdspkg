@@ -40,15 +40,18 @@
 #' @examples
 #' bom_getInterId()
 bom_getInterId <- function(conn=conn_vm_erp_test(),PMCode='2.104.20.00034') {
+  #更新只过滤使用状态的BOM
 
   sql <- paste0("select FInterID  from ICBOM  a
 inner join t_ICItem i
 on a.FItemID = i.fitemid
-where i.FNumber ='",PMCode,"'")
+where i.FNumber ='",PMCode,"'  and a.FUseStatus =1072 ")
+
   r <- tsda::sql_select(conn,sql)
   ncount <- nrow(r)
   if(ncount >0){
     #确认一下一个产品是否会有2个BOM
+    #这种处理有点欠妥啊  20220218
     res <- r$FInterID[1]
   }else{
     res<- BOM_getNewInterId(conn=conn)
@@ -145,13 +148,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
       #如果已经存在内码
       #data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
       data_p$FInterID <- rep(var_InterID,ncount)
-      # 针对BOM数据进行处理，将数据写入历史缓存表
-      sql_bak_history_bom_body <- paste0("	insert into rds_ICBOMChild
-   select * from ICBOMChild where FInterID =  ",var_InterID)
-      tsda::sql_update(conn,sql_bak_history_bom_body)
-      #从正式表中删除掉
-      sql_del_bom_body <- paste0(" delete  from ICBOMChild where FInterID =  ",var_InterID)
-      tsda::sql_update(conn,sql_del_bom_body)
+
+
 
 
 
@@ -163,8 +161,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     data_p$FEntrySelfZ0144 <- 0
     data_p$FEntrySelfZ0145 <- 0
     #View(data_p)
-    openxlsx::write.xlsx(data_p,'data_bom.xlsx')
-    str(data_p)
+    #openxlsx::write.xlsx(data_p,'data_bom.xlsx')
+    #str(data_p)
     #写入BOM缓存表
     tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = T)
     #将数据写入正式表
@@ -227,10 +225,15 @@ bom_check_batchNo_overWrite <- function(batchNo ='PRD00000003'){
   if( r == 'ECN' | r == 'BOM'){
     #ECN不回写
     #针对ECN及BOM情况，需要进一步判断是否版本升级，升级则回写，否则不回写
+    #目前是所有情况都需要进行判断
+    #不管什么情况，都要判断版本是否升级
+    #目前PLMBATCHNO中的APPLY仅仅用于占位，没有实则性使用
     res <- FALSE
   }else{
     #其他进行回写
-    res <- TRUE
+    #取消此路线，全部需要判断
+    #res <- TRUE
+    res <- FALSE
   }
   return(res)
 
@@ -359,6 +362,8 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
     #判断是否存在同版本
     #如果版本相同，则不需要回写
     if(bom_check_batchNo_overWrite(batchNo = PLMBatchnum)){
+      #中路径从2022-02-18已经不再使用
+
 
       if(flag_bc){
         #BC物料不做处理
@@ -413,7 +418,9 @@ select *   from rds_icbom_input ")
       }
 
     }else{
+
       #针对ECN的情况
+      #针对其他情况，包括新增BOM2022-02-18
       if(bom_check_is_newVersion(conn = conn,FBOMNumber = data_p$FBomNumber ,FVersion = data_p$FVersion)){
         #执行覆盖
         #新版本
@@ -452,19 +459,52 @@ select *   from rds_icbom_input ")
           sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
    select * from ICBOM where FInterID =  ",var_InterID)
           tsda::sql_update(conn,sql_bak_history_bom_head)
-          #从正式表中删除掉
-          sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
-          tsda::sql_update(conn,sql_del_bom_head)
-          tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
-          #将数据写入正式表
-          sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select *   from rds_icbom_input ")
-          tsda::sql_update(conn,sql_write_bom_head)
-          #清空缓存表
-          sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
-          tsda::sql_update(conn,sql_clear_bom_body_input)
+          #删除前加强检查
+          sql_bom_head_check <- paste0("select 1 from  rds_ICBOM
+    where FInterID =  ",var_InterID)
+          data_bom_head_check = tsda::sql_select(conn,sql_bom_head_check)
+          ncount_bom_head_check = nrow(data_bom_head_check)
+          #加载删除前检查
+          if(ncount_bom_head_check >0){
+            #已有数据，可以放心删除
 
-          flag =1
+            # 针对BOM数据进行处理，将数据写入历史缓存表
+            sql_bak_history_bom_body <- paste0("	insert into rds_ICBOMChild
+   select * from ICBOMChild where FInterID =  ",var_InterID)
+            tsda::sql_update(conn,sql_bak_history_bom_body)
+            #删除前加强检验
+            sql_check_bom_body <- paste0("	select 1 from  rds_ICBOMChild
+    where FInterID =  ",var_InterID)
+            data_check_bom_body =  tsda::sql_select(conn,sql_check_bom_body)
+            ncount_check_bom_body = nrow(data_check_bom_body)
+            if(ncount_check_bom_body >0){
+              #从正式表中删除掉,删除金蝶的表头，系统会自动删除表体
+              sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
+              tsda::sql_update(conn,sql_del_bom_head)
+              tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
+              #将数据写入正式表
+              sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
+select *   from rds_icbom_input ")
+              tsda::sql_update(conn,sql_write_bom_head)
+              #清空缓存表
+              sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
+              tsda::sql_update(conn,sql_clear_bom_body_input)
+
+              flag =1
+
+            }
+
+
+
+
+
+
+          }else{
+            #表头数据没有备份，不允许删除
+            flag = 0
+          }
+
+
         }
 
 
@@ -563,6 +603,14 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
   #现在的变更逻辑是BOM版本有差异，就可以变成
   #除了ECN，需要包含BOM打头但做了版本升级的部分
   #已经修改了相应的视图
+  #20220218
+  #处理相应的逻辑，一般全部走快速发布
+  #BOM的处理规则如下
+  # 1） 如果单据编号存在，且版本一致，不更新。
+  # 2）如果单据编码存在，且版本更高，做版本更新，
+  # 3）如果单据编码不存在，删除历史的单据编号，同时做新增操作。
+  # 同时数据误删
+
 
   bom_list <-  bom_getList(conn = conn)
   ncount = nrow(bom_list)
@@ -572,11 +620,21 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
     lapply(1:ncount, function(i){
       PMCode <- bom_list$PMCode[i]
       PLMBatchnum <- bom_list$PLMBatchNum[i]
+
+      #获取内码
+      #只过滤使用状态的BOM
+
        FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
       #针对BOM打头的物料，需要修改BOM表头信息
+
        flag = BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
+       #处理BOM表头
+
        if (flag >0){
          BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID = FInterID)
+         #更新BOM表的状态
+         #只有在成功的状态下才更新状态，否则不再更新状态
+         bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
        }else{
          #不再写入
        }
@@ -584,8 +642,7 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
       #写入BOM报头
 
-      #更新BOM表的状态
-      bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
+
 
 
 
