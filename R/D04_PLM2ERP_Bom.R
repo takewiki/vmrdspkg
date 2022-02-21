@@ -125,7 +125,7 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
   data_tpl <- tsda::sql_select(conn,sql)
   #print(length(names(data_tpl)))
   #获取实际数据
-  sql_bom <- paste0("select FSubItemId as FItemID,FSubUnitId as FUnitID,BOMCount as FQty
+  sql_bom <- paste0("select distinct FSubItemId as FItemID,FSubUnitId as FUnitID,BOMCount as FQty
    from  [vw_PLMtoERP_BOM2]
   where PMCode ='",PMCode,"' and PLMBatchnum='",PLMBatchnum,"'
   and CMCode <>'' ")
@@ -145,9 +145,9 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     # 针对内码进行处理
     var_InterID <- FInterID
 
-      #如果已经存在内码
-      #data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
-      data_p$FInterID <- rep(var_InterID,ncount)
+    #如果已经存在内码
+    #data_p$FInterID <- rep(BOM_getNewInterId(conn = conn),ncount)
+    data_p$FInterID <- rep(var_InterID,ncount)
 
 
 
@@ -330,13 +330,13 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
 
 
   #获取实际数据
-  sql_bom <- paste0("select FParentItemId as FItemID,FParentUnitID as FUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
+  sql_bom <- paste0("select distinct  FParentItemId as FItemID,FParentUnitID as FUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
   where  PLMBatchnum='",PLMBatchnum,"' and PMCode =  '",PMCode,"' and CMCode=''")
   data_bom <- tsda::sql_select(conn,sql_bom)
 
   ncount <- nrow(data_bom)
   #处理BC-BOM展开的情况
-  sql_bc <- paste0("select FParentItemId as FItemID,FParentUnitID as FUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
+  sql_bc <- paste0("select distinct  FParentItemId as FItemID,FParentUnitID as FUnitID,BOMRevCode,FProductGroupId  from  [vw_PLMtoERP_BOM]
   where  PLMBatchnum='",PLMBatchnum,"' and PMCode =  '",PMCode,"' and CMCode='' and PLMOperation ='BC'" )
   data_bc <- tsda::sql_select(conn,sql_bc)
   ncount_bc <- nrow(data_bc)
@@ -368,6 +368,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
       if(flag_bc){
         #BC物料不做处理
         flag = 0
+        print('A')
       }else{
         #执行over_write
         #写入BOM版本数据
@@ -415,6 +416,7 @@ select *   from rds_icbom_input ")
         tsda::sql_update(conn,sql_clear_bom_body_input)
         #end of bom----
         flag = 1
+        print('B')
       }
 
     }else{
@@ -429,6 +431,7 @@ select *   from rds_icbom_input ")
         if(flag_bc){
           #bc物料不做处理
           flag =0
+          print('C')
         }else{
           data_p$FItemID <- data_bom$FItemID
           #data_p$FEntryID <- 1:ncount
@@ -464,6 +467,16 @@ select *   from rds_icbom_input ")
     where FInterID =  ",var_InterID)
           data_bom_head_check = tsda::sql_select(conn,sql_bom_head_check)
           ncount_bom_head_check = nrow(data_bom_head_check)
+          #数据的数据
+          sql_bom_head_check2 <- paste0("select 1 from  ICBOM
+    where FInterID =  ",var_InterID)
+          data_bom_head_check2 = tsda::sql_select(conn,sql_bom_head_check2)
+          ncount_bom_head_check2 = nrow(data_bom_head_check2)
+          if(ncount_bom_head_check2  == 0){
+            #变更逻辑，使其可以通过，说明是新增
+            ncount_bom_head_check =1
+          }
+
           #加载删除前检查
           if(ncount_bom_head_check >0){
             #已有数据，可以放心删除
@@ -477,6 +490,10 @@ select *   from rds_icbom_input ")
     where FInterID =  ",var_InterID)
             data_check_bom_body =  tsda::sql_select(conn,sql_check_bom_body)
             ncount_check_bom_body = nrow(data_check_bom_body)
+            if(ncount_bom_head_check2 == 0){
+              #针对新增的情况
+              ncount_check_bom_body = 1
+            }
             if(ncount_check_bom_body >0){
               #从正式表中删除掉,删除金蝶的表头，系统会自动删除表体
               sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
@@ -491,6 +508,7 @@ select *   from rds_icbom_input ")
               tsda::sql_update(conn,sql_clear_bom_body_input)
 
               flag =1
+              print('D')
 
             }
 
@@ -502,6 +520,7 @@ select *   from rds_icbom_input ")
           }else{
             #表头数据没有备份，不允许删除
             flag = 0
+            print('E')
           }
 
 
@@ -516,6 +535,7 @@ select *   from rds_icbom_input ")
       }else{
         # 不进行覆盖
         flag = 0
+        print('F')
 
       }
 
@@ -555,15 +575,15 @@ bom_readIntoERP_updateStatus<- function(conn=conn_vm_erp_test(),
                                         PMCode =  '2.104.20.00034',
                                         PLMBatchnum='BOM00000002') {
   ERP_DATE = as.character(Sys.time())
-sql <- paste0("update a set  ERPOperation='R',ERPDate = '",ERP_DATE,"'
+  sql <- paste0("update a set  ERPOperation='R',ERPDate = '",ERP_DATE,"'
               from PLMtoERP_BOM  a where PMCode ='",PMCode,"'
               and PLMBatchnum='",PLMBatchnum,"'")
-# sql <- paste0("update a set  ERPOperation='R',ERPDate =GETDATE()
-#               from PLMtoERP_BOM  a where PMCode ='",PMCode,"'
-#               and PLMBatchnum='",PLMBatchnum,"'")
-try(
-  tsda::sql_update(conn,sql)
-)
+  # sql <- paste0("update a set  ERPOperation='R',ERPDate =GETDATE()
+  #               from PLMtoERP_BOM  a where PMCode ='",PMCode,"'
+  #               and PLMBatchnum='",PLMBatchnum,"'")
+  try(
+    tsda::sql_update(conn,sql)
+  )
 
 }
 
@@ -580,7 +600,7 @@ try(
 #' bom_getList()
 bom_getList <- function(conn=conn_vm_erp_test()) {
 
-  sql <- paste0("select PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
+  sql <- paste0("select distinct  PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
 where  cmcode ='' and  ERPDate is null
 order by plmbatchnum,flowcode ")
   res <- tsda::sql_select(conn,sql)
@@ -613,6 +633,8 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
 
   bom_list <-  bom_getList(conn = conn)
+  print('bom_list')
+  print(bom_list)
   ncount = nrow(bom_list)
 
   if (ncount >0){
@@ -624,20 +646,20 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
       #获取内码
       #只过滤使用状态的BOM
 
-       FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
+      FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
       #针对BOM打头的物料，需要修改BOM表头信息
 
-       flag = BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
-       #处理BOM表头
+      flag = BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
+      #处理BOM表头
 
-       if (flag >0){
-         BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID = FInterID)
-         #更新BOM表的状态
-         #只有在成功的状态下才更新状态，否则不再更新状态
-         bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
-       }else{
-         #不再写入
-       }
+      if (flag >0){
+        BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID = FInterID)
+        #更新BOM表的状态
+        #只有在成功的状态下才更新状态，否则不再更新状态
+        bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
+      }else{
+        #不再写入
+      }
 
 
       #写入BOM报头
