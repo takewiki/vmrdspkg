@@ -601,8 +601,7 @@ bom_readIntoERP_updateStatus<- function(conn=conn_vm_erp_test(),
 bom_getList <- function(conn=conn_vm_erp_test()) {
 
   sql <- paste0("select distinct  PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
-where  cmcode ='' and  ERPDate is null
-order by plmbatchnum,flowcode ")
+where  cmcode ='' and  ERPDate is null ")
   res <- tsda::sql_select(conn,sql)
   return(res)
 
