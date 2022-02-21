@@ -212,7 +212,8 @@ where ERPDate is null and ERPOperation is null")
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_Item',r_object = data,append = TRUE)
     })
     #写入日志表
-    FDateFrom =  last_date
+    #FDateFrom =  last_date
+    FDateFrom =  as.character(Sys.Date())
     FTableName = 'PLMtoERP_Item'
     FCount = ncount
     FStatus_PLM = 1
@@ -419,7 +420,8 @@ where ERPDate is null and ERPOperation is null")
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_BOM',r_object = data,append = TRUE)
     })
     #写入日志表
-    FDateFrom =  last_date
+    #FDateFrom =  last_date
+    FDateFrom =  as.character(Sys.Date())
     FTableName = 'PLMtoERP_BOM'
     FCount = ncount
     FStatus_PLM = 1
