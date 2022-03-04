@@ -1,7 +1,7 @@
 Package: vmrdspkg
 Type: Package
 Title: package for vm app.
-Version: 5.7.3
+Version: 5.7.4
 Author: hulilei
 Maintainer: hulilei <hulilei@takewiki.com.cn>
 Description: More about what it does (maybe more than one line)

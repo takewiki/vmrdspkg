@@ -173,7 +173,18 @@ data_PLMtoERP_Item_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=co
 #   sql <- paste0("select  *  from  PLMtoERP_Item
 # where PLMDate >'",last_date,"'")
 
-  sql <- paste0("select  *  from  PLMtoERP_Item
+  sql <- paste0("SELECT [MCode]
+      ,[MName]
+      ,[Spec]
+      ,[MDesc]
+      ,isnull([UOM],'') as [UOM]
+      ,[MProp]
+      ,[PLMOperation]
+      ,[ERPOperation]
+      ,[PLMDate]
+      ,[ERPDate]
+      ,[FinterId]
+  FROM [dbo].[ERPtoPLM_Item]
 where ERPDate is null and ERPOperation is null")
 
 
@@ -189,6 +200,7 @@ where ERPDate is null and ERPOperation is null")
     data$MProp[data$MProp == 'Outsourcing'] <- '委外加工'
     data$MProp[data$MProp == 'Configuration'] <- '自制'
     #针对单位进行容错性处理
+    data$UOM[data$UOM == ''] <-'个'
     data$UOM[data$UOM == 'each'] <-'个'
     data$UOM[data$UOM == 'roll'] <-'卷'
     data$UOM[data$UOM == 'bundle'] <-'捆'
