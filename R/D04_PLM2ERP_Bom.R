@@ -164,7 +164,11 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #openxlsx::write.xlsx(data_p,'data_bom.xlsx')
     #str(data_p)
     #写入BOM缓存表
-    tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = T)
+    #清空缓存表-step1,防止数据异常
+    sql_clear_bom_body_input <- paste0("truncate table  rds_icbomChild_input ")
+    tsda::sql_update(conn,sql_clear_bom_body_input)
+
+    tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
     #将数据写入正式表
     sql_write_bom_body <- paste0("INSERT INTO ICBomChild (FInterID,FEntryID,FBrNo,FItemID,FAuxPropID,FUnitID,FMaterielType,FMarshalType,FQty,FAuxQty,FBeginDay,FEndDay,FPercent,FScrap,FPositionNo,FItemSize,FItemSuite,FOperSN,FOperID,FMachinePos,FOffSetDay,FBackFlush,FStockID,FSPID,FNote,FNote1,FNote2,FNote3,FPDMImportDate,FDetailID,FCostPercentage,FEntrySelfZ0142,FEntrySelfZ0144,FEntrySelfZ0145,FEntrySelfZ0146,FEntrySelfZ0148)
 select *   from rds_icbomChild_input ")
@@ -173,7 +177,7 @@ select *   from rds_icbomChild_input ")
     sql_updateDetailID <- paste0(" update  a set  FDetailID =NEWID()  from  ICBOMchild  a   where finterid =  ",var_InterID)
     tsda::sql_update(conn, sql_updateDetailID )
 
-    #清空缓存表
+    #-step2
     sql_clear_bom_body_input <- paste0("truncate table  rds_icbomChild_input ")
     tsda::sql_update(conn,sql_clear_bom_body_input)
 
@@ -406,7 +410,10 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
         tsda::sql_update(conn,sql_del_bom_head)
         #写入BOM缓存表表头信息
-        tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
+        #清空缓存表
+        sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
+        tsda::sql_update(conn,sql_clear_bom_body_input)
+        tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = F)
         #将数据写入正式表
         sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
 select *   from rds_icbom_input ")
@@ -609,6 +616,24 @@ where  cmcode ='' and  ERPDate is null ")
 
 
 
+#' 处理BOM中的申请标志
+#'
+#' @param conn  连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' bom_update_bomApplyFlag()
+bom_update_bomApplyFlag <- function(conn=conn_vm_erp_test()){
+
+  sql <- paste0(" update a set a.ERPDate = GETDATE(),ERPOperation='R'    from  PLMtoERP_BOM  a where PLMBatchnum like 'APP%'
+ and a.ERPDate is null ")
+  tsda::sql_update(conn,sql)
+
+}
+
+
 #' 批量写入BOM逻辑更新
 #'
 #' @param conn 连接
@@ -629,6 +654,8 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
   # 2）如果单据编码存在，且版本更高，做版本更新，
   # 3）如果单据编码不存在，删除历史的单据编号，同时做新增操作。
   # 同时数据误删
+  #更新所有apply记录
+  bom_update_bomApplyFlag(conn = conn)
 
 
   bom_list <-  bom_getList(conn = conn)
@@ -658,6 +685,7 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
         bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
       }else{
         #不再写入
+        bom_readIntoERP_updateStatus(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum)
       }
 
 
