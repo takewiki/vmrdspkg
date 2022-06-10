@@ -505,6 +505,9 @@ select *   from rds_icbom_input ")
               #从正式表中删除掉,删除金蝶的表头，系统会自动删除表体
               sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
               tsda::sql_update(conn,sql_del_bom_head)
+              #清空缓存表
+              sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
+              tsda::sql_update(conn,sql_clear_bom_body_input)
               tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
               #将数据写入正式表
               sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
