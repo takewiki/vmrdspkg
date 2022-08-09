@@ -202,8 +202,10 @@ select *   from rds_icbomChild_input ")
 bom_check_is_newVersion <- function(conn=conn_vm_erp_test(),
                                     FBOMNumber = 'BOM000001',
                                     FVersion='001'){
+  #注意添加一下使用状态
+  #
   sql <- paste0("select  * from ICBOM
-where FBOMNumber = '",FBOMNumber,"' and FVersion='",FVersion,"'")
+where FBOMNumber = '",FBOMNumber,"' and FVersion='",FVersion,"' and FUseStatus =1072")
   r <- tsda::sql_select(conn,sql)
   ncount <- nrow(r)
   if(ncount >0){
@@ -345,7 +347,9 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
   data_bc <- tsda::sql_select(conn,sql_bc)
   ncount_bc <- nrow(data_bc)
   if(ncount_bc >0){
-    flag_bc  <- TRUE
+    #取消BC的物料处理，之前设置为true会导致BOM物料BC物料没有出现在BOM中
+    #start  from 2022.08.08
+    flag_bc  <- FALSE
   }else{
     flag_bc <- FALSE
   }
