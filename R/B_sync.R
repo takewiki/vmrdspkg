@@ -398,28 +398,6 @@ data_PLMtoERP_BOM_maxDate  <- function(conn=conn_vm_erp_test()){
   return(res)
 }
 
-
-
-#' 增加对内码的处理
-#'
-#' @param conn 连接
-#' @param data 数据
-#'
-#' @return 返顺值
-#' @export
-#'
-#' @examples
-#' data_PLMtoERP_BOM_delInterId()
-data_PLMtoERP_BOM_delInterId <- function(conn=conn_vm_erp_test(),data= 1:50) {
-mydata = paste0(data,collapse = ",")
-sql  =paste0(" delete  from  PLMtoERP_BOM
-              where  FInterId in(",mydata,")")
-print(sql)
-tsda::sql_update(conn,sql)
-
-
-}
-
 #' 从PLM库中获取最新更新的数据
 #'
 #' @param conn_plm 连接
@@ -450,13 +428,10 @@ where ERPDate is null and ERPOperation is null")
   ncount = nrow(data)
   if(ncount > 0){
     #数据已经存在,写入ERP
-    FInterId = data$FInterId
-    data_PLMtoERP_BOM_delInterId(conn = conn_erp,data = FInterId)
 
 
 
-
-    #处理已存在的数据，防止重复，实现重传机制
+    #增加处理，处理掉已有的数据
     try({
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_BOM',r_object = data,append = TRUE)
     })
