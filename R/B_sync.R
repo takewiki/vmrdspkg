@@ -183,8 +183,8 @@ data_PLMtoERP_Item_fromDate  <- function(conn_plm=conn_vm_plm_test(),conn_erp=co
       ,[ERPOperation]
       ,[PLMDate]
       ,[ERPDate]
-      ,[FinterId]
-  FROM [dbo].[ERPtoPLM_Item]
+      ,[FinterId],PlmBatchNum
+  FROM [dbo].[PLMtoERP_Item]
 where ERPDate is null and ERPOperation is null")
 
 
@@ -218,9 +218,11 @@ where ERPDate is null and ERPOperation is null")
     data$UOM[data$UOM == 'jin'] <-'斤'
 
 
-
+    print('bug')
     #数据已经存在,写入ERP
     try({
+      print('bug2')
+      print(data)
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_Item',r_object = data,append = TRUE)
     })
     #写入日志表

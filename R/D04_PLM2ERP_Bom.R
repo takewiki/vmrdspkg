@@ -129,8 +129,10 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
    from  [vw_PLMtoERP_BOM2]
   where PMCode ='",PMCode,"' and PLMBatchnum='",PLMBatchnum,"'
   and CMCode <>'' ")
+  print(sql_bom)
   data_bom <- tsda::sql_select(conn,sql_bom)
   print('data_bom')
+  #View(data_bom)
   print(data_bom)
 
   ncount <- nrow(data_bom)
