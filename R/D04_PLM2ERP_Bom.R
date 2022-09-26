@@ -123,17 +123,17 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
   #获取模板数据
   sql <- paste0("select * from  rds_icbom_tpl_body")
   data_tpl <- tsda::sql_select(conn,sql)
-  #print(length(names(data_tpl)))
+  ##print(length(names(data_tpl)))
   #获取实际数据
   sql_bom <- paste0("select distinct FSubItemId as FItemID,FSubUnitId as FUnitID,BOMCount as FQty
    from  [vw_PLMtoERP_BOM2]
   where PMCode ='",PMCode,"' and PLMBatchnum='",PLMBatchnum,"'
   and CMCode <>'' ")
-  print(sql_bom)
+  #print(sql_bom)
   data_bom <- tsda::sql_select(conn,sql_bom)
-  print('data_bom')
+  #print('data_bom')
   #View(data_bom)
-  print(data_bom)
+  #print(data_bom)
 
   ncount <- nrow(data_bom)
 
@@ -371,7 +371,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
       if(flag_bc){
         #BC物料不做处理
         flag = 0
-        print('A')
+        #print('A')
       }else{
         #执行over_write
         #写入BOM版本数据
@@ -419,16 +419,16 @@ select *   from rds_icbom_input ")
         tsda::sql_update(conn,sql_clear_bom_body_input)
         #end of bom----
         flag = 1
-        print('B')
+        #print('B')
       }
 
     }else{
 
       #针对ECN的情况
       #针对其他情况，包括新增BOM2022-02-18
-      print('test for bc bom version')
-      print(data_p$FBomNumber)
-      print(data_p$FVersion)
+      #print('test for bc bom version')
+      #print(data_p$FBomNumber)
+      #print(data_p$FVersion)
 
       if(bom_check_is_newVersion(conn = conn,FBOMNumber = data_p$FBomNumber ,FVersion = data_p$FVersion)){
         #执行覆盖
@@ -438,7 +438,7 @@ select *   from rds_icbom_input ")
         if(flag_bc){
           #bc物料不做处理
           flag =0
-          print('C')
+          #print('C')
         }else{
           data_p$FItemID <- data_bom$FItemID
           #data_p$FEntryID <- 1:ncount
@@ -515,7 +515,7 @@ select *   from rds_icbom_input ")
               tsda::sql_update(conn,sql_clear_bom_body_input)
 
               flag =1
-              print('D')
+              #print('D')
 
             }
 
@@ -528,7 +528,7 @@ select *   from rds_icbom_input ")
             #start for e
             #表头数据没有备份，不允许删除
             flag = 0
-            print('E')
+            #print('E')
             #end for e
           }
 
@@ -544,7 +544,7 @@ select *   from rds_icbom_input ")
       }else{
         # 不进行覆盖
         flag = 0
-        print('F')
+        #print('F')
 
       }
 
@@ -641,8 +641,8 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
 
   bom_list <-  bom_getList(conn = conn)
-  print('bom_list')
-  print(bom_list)
+  #print('bom_list')
+  #print(bom_list)
   ncount = nrow(bom_list)
 
   if (ncount >0){
@@ -656,13 +656,13 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
       FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
       #针对BOM打头的物料，需要修改BOM表头信息
-      print('test1:bom_interid')
-      print(FInterID)
+      #print('test1:bom_interid')
+      #print(FInterID)
 
       flag = BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
       #处理BOM表头
-      print('flag for bom')
-      print(flag)
+      #print('flag for bom')
+      #print(flag)
 
       if (flag >0){
         BOM_getNewBillTpl_Body(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID = FInterID)

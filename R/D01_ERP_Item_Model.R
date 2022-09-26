@@ -117,7 +117,7 @@ item_selectValue_ERP2PLM<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_v
   sql <-  paste0("  select * from  rds_md_item4TC_Test")
   #其中时间取的数据库服务器的时间
   r <- tsda::sql_select(conn_erp,sql)
-  print(str(r))
+  #print(str(r))
   r$PLMDate <-  as.character(r$PLMDate)
   r$PLMOperation <- as.character(r$PLMOperation)
   #针对ERP时间进行修正
@@ -178,7 +178,7 @@ item_selectValue_ERP2PLM_multi<- function(conn_erp=conn_vm_erp_test2(),conn_plm=
   sql <-  paste0("select * from  rds_md_item4TC_Test
 where MCode in (",FNumbers_sql,")")
   r <- tsda::sql_select(conn_erp,sql)
-  print(str(r))
+  #print(str(r))
 
   ncount =nrow(r)
   if (ncount >0){
@@ -277,7 +277,7 @@ where MCode not in
 union
 select MCode  from PLMtoERP_Item)")
   r <- tsda::sql_select(conn_erp,sql)
-  print(str(r))
+  #print(str(r))
 
   ncount =nrow(r)
   if (ncount >0){

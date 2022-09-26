@@ -64,7 +64,7 @@ PLM_Item_readByBatchNo_aux <- function(config_file = "config/conn_tc.R",propType
   #获取处理批次
   sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
 where PLMBatchnum  ='",batchNo,"'  and MProp = N'",propType,"' ")
-  # print(sql)
+  # ##print(sql)
 
   #返回结果
   res <- tsda::sql_select(conn = conn_tc,sql_str = sql)
@@ -118,7 +118,7 @@ item_getNumber <- function(conn_erp = conn_vm_erp_test(),item_list) {
   sql_tail <-  tsdo::sql_str(item_list)
   sql_item <- paste0("  select  fnumber from t_icitem
   where FNumber in (",sql_tail,")")
-  #print(sql_item)
+  ###print(sql_item)
   #查询数据结果
   res <- tsda::sql_select(conn_erp,sql_item)
   return(res)
@@ -190,8 +190,8 @@ PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP0
   #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_WG_New(config_file = config_file,batchNo = batchNo,
                                        conn_erp = conn_erp)
-  #print('test_new:')
-  #print(df_new)
+  ###print('test_new:')
+  ###print(df_new)
   ncount <- nrow(df_new)
 
 
@@ -200,12 +200,12 @@ PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP0
 
   #1.2读取待分配数据------
   df_unAlloc <- mdmpkg::Item_getUnAllocateNumbers(conn=conn_erp,n = ncount,FPropType = '外购')
-  #print('df_unallocation:')
-  #print(df_unAlloc)
+  ###print('df_unallocation:')
+  ###print(df_unAlloc)
   #1.3 执行物料分配 ----
   res <- tsdo::allocate(df_new,df_unAlloc)
-  #print('test--1---')
-  #print(res)
+  ###print('test--1---')
+  ###print(res)
 
   #1.4 添加批号信息及相关信息------
   res$FBatchNo <- batchNo
@@ -455,19 +455,19 @@ PLM_Item_Allocated_zz <- function(config_file = "config/conn_tc.R",batchNo='APP0
   #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_ZZ_New(config_file = config_file,batchNo = batchNo,
                                               conn_erp = conn_erp)
-  print('test_new:')
-  print(df_new)
+  ###print('test_new:')
+  ###print(df_new)
   ncount <- nrow(df_new)
 
 
   #1.2读取待分配数据------
   df_unAlloc <- mdmpkg::Item_getUnAllocateNumbers(conn=conn_erp,n = ncount,FPropType = '自制')
-  print('df_unallocation:')
-  print(df_unAlloc)
+  ###print('df_unallocation:')
+  ###print(df_unAlloc)
   #1.3 执行物料分配 ----
   res <- tsdo::allocate(df_new,df_unAlloc)
-  print('test--1---')
-  print(res)
+  ###print('test--1---')
+  ###print(res)
 
   #1.4 添加批号信息及相关信息------
   res$FBatchNo <- batchNo
@@ -693,19 +693,19 @@ PLM_Item_Allocated_ww <- function(config_file = "config/conn_tc.R",batchNo='APP0
   #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_WW_New(config_file = config_file,batchNo = batchNo,
                                           conn_erp = conn_erp)
-  print('test_new:')
-  print(df_new)
+  ###print('test_new:')
+  ##print(df_new)
   ncount <- nrow(df_new)
 
 
   #1.2读取待分配数据------
   df_unAlloc <- mdmpkg::Item_getUnAllocateNumbers(conn=conn_erp,n = ncount,FPropType = '委外')
-  print('df_unallocation:')
-  print(df_unAlloc)
+  ##print('df_unallocation:')
+  ##print(df_unAlloc)
   #1.3 执行物料分配 ----
   res <- tsdo::allocate(df_new,df_unAlloc)
-  print('test--1---')
-  print(res)
+  ##print('test--1---')
+  ##print(res)
 
   #1.4 添加批号信息及相关信息------
   res$FBatchNo <- batchNo

@@ -18,7 +18,7 @@ erp_materia_read <-function(file="data-raw/PLM传入ERP物料数据.xlsx",sheet 
                                                 "text", "numeric", "numeric", "text",
                                                 "text", "text", "text",'text'))
   ncount <- nrow(res)
-  print(res)
+  #print(res)
   if(ncount >0){
     if(lang == 'en'){
       names(res) <-c('FNumber',
@@ -35,7 +35,7 @@ erp_materia_read <-function(file="data-raw/PLM传入ERP物料数据.xlsx",sheet 
                      'FWwInspecName',
                      'FIsLowValueItem',
                      'FIsBackFlush')
-      print(res)
+      #print(res)
       #写入数据库
       res$FUploadDate <- as.character(Sys.Date())
       res$FUseStatus <- 0
@@ -148,8 +148,8 @@ where  isnull(b.FIsBackFlush,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
     #针对低值再更新相关字段,倒冲，仓库，批次管理等
     sql_test <- paste0("select * from rds_item_BatchUpdate_db  where  isnull(F_128,0) = 1 and  FUseStatus = 0 and FIsDo =0")
     mydata1 <- tsda::sql_select(conn,sql_test)
-    print('debug1')
-    print(mydata1)
+    #print('debug1')
+    #print(mydata1)
 
     sql_test2 <- paste0("select
 
@@ -160,8 +160,8 @@ where  isnull(b.FIsBackFlush,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
                         on a.FItemID = b.FItemId
                         where  isnull(b.F_128,0) = 1 and   b.FUseStatus = 0 and FIsDo =0")
     mydata2 <- tsda::sql_select(conn,sql_test2)
-    print('debug2')
-    print(mydata2)
+    #print('debug2')
+    #print(mydata2)
     #低值易消品更新相应的属性
 #     sql_lowValue2 <- paste0("update a set
 #

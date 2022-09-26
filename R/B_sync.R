@@ -114,9 +114,9 @@ if(ncount_plm >0 & ncount_erp == 0){
 
 
 }else if(ncount_plm & ncount_erp){
-  print('ERP库中PLMtoERP_Item表中已经存在数据，不需要重写')
+  #print('ERP库中PLMtoERP_Item表中已经存在数据，不需要重写')
 }else{
-  print('PLM库中PLMtoERP_Item表中没有数据，不需要写入')
+  #print('PLM库中PLMtoERP_Item表中没有数据，不需要写入')
 }
 
 
@@ -218,11 +218,11 @@ where ERPDate is null and ERPOperation is null")
     data$UOM[data$UOM == 'jin'] <-'斤'
 
 
-    print('bug')
+    #print('bug')
     #数据已经存在,写入ERP
     try({
-      print('bug2')
-      print(data)
+      #print('bug2')
+      #print(data)
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_Item',r_object = data,append = TRUE)
     })
     #写入日志表
@@ -253,7 +253,7 @@ where ERPDate is null and ERPOperation is null")
 
   }else
   {
-    print('不存在更新数据')
+   #  print('不存在更新数据')
   }
   return(data)
 
@@ -376,9 +376,9 @@ sync_PLMtoERP_BOM_intially <- function(conn_plm=conn_vm_plm_test(),conn_erp=conn
 
 
   }else if(ncount_plm & ncount_erp){
-    print('ERP库中PLMtoERP_BOM表中已经存在数据，不需要重写')
+    #print('ERP库中PLMtoERP_BOM表中已经存在数据，不需要重写')
   }else{
-    print('PLM库中PLMtoERP_BOM表中没有数据，不需要写入')
+    #print('PLM库中PLMtoERP_BOM表中没有数据，不需要写入')
   }
 }
 
@@ -465,7 +465,7 @@ where ERPDate is null and ERPOperation is null")
 
   }else
   {
-    print('不存在更新数据')
+    # print('不存在更新数据')
   }
   return(data)
 

@@ -470,7 +470,7 @@ Item_getUnAllocateNumber <- function(conn=conn_vm_erp_test(),
     res <- data$FNumber
   }else{
     res <- NULL
-    print('没有待分配的物料，请联系管理员处理')
+    #print('没有待分配的物料，请联系管理员处理')
   }
   return(res)
 
@@ -498,7 +498,7 @@ where FNumber ='",FNumber,"' and FItemClassID =4 ")
     res <- data$FItemID
   }else{
     res <- NULL
-    print('没有待分配的物料内码，请联系管理员处理')
+    #print('没有待分配的物料内码，请联系管理员处理')
   }
   return(res)
 
@@ -525,7 +525,7 @@ Item_ReadItem_One <- function(conn=conn_vm_erp_test(),
   #获取处理批次
   sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
 where PLMBatchnum  ='",PLMBatchnum,"'  and MProp = N'",MProp,"'  and MCode ='",MCode,"' ")
-   print(sql)
+   #print(sql)
 
   #返回结果
   res <- tsda::sql_select(conn = conn,sql_str = sql)
@@ -599,9 +599,9 @@ Item_getItemID_costObj <- function(conn=conn_vm_erp_test2(),
                                          FNumber='RDS.02.000002') {
 
   sql <- paste0("select FItemId from t_item_rdsRoom where FPropTYPE ='自制' and FItemClassId =2001 and fnumber ='",FNumber,"'")
-  #print(sql)
+  ##print(sql)
   r <- tsda::sql_select(conn,sql_str = sql)
-  #print(r)
+  ##print(r)
   ncount = nrow(r)
   if(ncount >0){
     res <- r$FItemId
@@ -638,9 +638,9 @@ Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
 FItemId = item_GetInterId(conn_erp = conn,FItemNumber = MCode)
 #读取传过来的信息
 res <- Item_ReadItem_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
-print('step1 ')
-print(res)
-print(FItemId)
+#print('step1 ')
+#print(res)
+#print(FItemId)
 if(FItemId >0){
   #物料已经存在
   #说明物料编码已经存在修改相关的信息即可
@@ -667,10 +667,10 @@ if(FItemId >0){
 }else{
   #物料不存在
   #传入新分配的物料编码
-  print('s1')
+  #print('s1')
   FNumber = Item_getUnAllocateNumber(conn = conn,MProp = MProp)
-  print('s1')
-  print(FNumber)
+  #print('s1')
+  #print(FNumber)
   #分配数据
   res$FNumber <-  FNumber
   res$FBatchNo <- PLMBatchnum

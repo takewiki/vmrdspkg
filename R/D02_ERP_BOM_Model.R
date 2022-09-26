@@ -91,11 +91,11 @@ bom_is_haveValue_ERP2PLM<- function(conn=conn_vm_erp_test2(),FNumber='1.218.03.0
 #' bom_is_insertValue_ERP2PLM()
 bom_insertValue_ERP2PLM<- function(conn=conn_vm_erp_test2(),FNumber='1.218.03.00002',FStep =1) {
   prefix = "insert into rds_pdm_bomTestSet   "
-  print(prefix)
-  print(FStep)
+  ##print(prefix)
+  ##print(FStep)
   sql <-  bom_level_sql_ERP2PLM(conn = conn,FNumber = FNumber,FStep = FStep)
   sql_ins = paste0(prefix," ",sql)
-  print(sql_ins)
+  ##print(sql_ins)
    try({
      tsda::sql_update(conn,sql_ins)
    })
@@ -140,15 +140,15 @@ order by b.FStep,a.PMCode,a.CMCode ")
 
   r$PLMDate <-  as.character(r$PLMDate)
   r$PLMOperation <- as.character(r$PLMOperation)
-  print(str(r))
-  print(r)
+  ##print(str(r))
+  ##print(r)
   openxlsx::write.xlsx(x = r,file = 'bom_test.xlsx')
   ncount =nrow(r)
   if (ncount >0){
     #本地写入结果
-    print('C1')
+    ##print('C1')
      lapply(1:ncount, function(i){
-       print(r[i, ])
+      # #print(r[i, ])
        tsda::db_writeTable(conn = conn_erp,table_name = 'ERPtoPLM_BOM',r_object = r[i, ],append = T)
 
      })
@@ -156,9 +156,9 @@ order by b.FStep,a.PMCode,a.CMCode ")
 
 
     #写入PLM数据库
-     print('C2')
+    # #print('C2')
     tsda::db_writeTable(conn = conn_plm,table_name = 'ERPtoPLM_BOM_Input',r_object = r,append = T)
-    print('C3')
+    ##print('C3')
     sql_ins <- paste0("INSERT INTO [dbo].[ERPtoPLM_BOM]
            ([PMCode]
            ,[PMName]
@@ -176,7 +176,7 @@ order by b.FStep,a.PMCode,a.CMCode ")
            ,[RootCode])
            select * from ERPtoPLM_BOM_Input ")
     tsda::sql_update(conn = conn_plm,sql_str = sql_ins)
-    print('C4')
+    ##print('C4')
     sql_truncate <- paste0(" truncate table  ERPtoPLM_BOM_Input ")
     tsda::sql_update(conn = conn_plm,sql_str = sql_truncate)
 
@@ -262,7 +262,7 @@ where PMCode ='",FNumber,"'")
   r$ERPDate <- as.character(Sys.time())
   r$PLMDate <-  as.character(r$PLMDate)
   r$PLMOperation <- as.character(r$PLMOperation)
-  print(str(r))
+  ##print(str(r))
   ncount =nrow(r)
   if (ncount >0){
     #本地写入结果
@@ -376,26 +376,26 @@ bom_updateStatus_ERP2PLM<- function(conn=conn_vm_erp_test2(),FNumber='1.218.03.0
 ERPtoPLM_BOM_one<- function(conn_erp=conn_vm_erp_test2(),conn_plm=conn_vm_plm_prd(),FNumber='1.218.03.00002'){
   FStep = 1
   flag<- bom_is_haveValue_ERP2PLM(conn=conn_erp,FNumber = FNumber,FStep = FStep)
-  print('step')
-  print(FStep)
-  print(flag)
+  ##print('step')
+  ##print(FStep)
+  ##print(flag)
   if(flag){
     #可以展开
     while(flag){
-      print('PART-A')
+      ##print('PART-A')
       bom_insertValue_ERP2PLM(conn = conn_erp,FNumber = FNumber,FStep = FStep)
       FStep = FStep + 1
-      print('PART-B')
+      ##print('PART-B')
       flag<- bom_is_haveValue_ERP2PLM(conn=conn_erp,FNumber = FNumber,FStep = FStep)
-      print('step')
-      print(FStep)
+      ##print('step')
+      ##print(FStep)
     }
-    print('finished all the step')
-    print('PART-C')
+    ##print('finished all the step')
+    ##print('PART-C')
     res <- bom_selectValue_ERP2PLM(conn_erp = conn_erp,conn_plm = conn_plm,FNumber = FNumber)
-    print('PART-D')
+    ##print('PART-D')
     bom_updateStatus_ERP2PLM(conn=conn_erp,FNumber = FNumber)
-    print('PART-E')
+    ##print('PART-E')
   }else{
     #全部为外购物料
     res <-bom_selectValue_ERP2PLM_wg(conn_erp = conn_erp,conn_plm = conn_plm,FNumber = FNumber)
