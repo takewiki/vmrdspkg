@@ -225,6 +225,9 @@ where ERPDate is null and ERPOperation is null")
       #print(data)
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_Item',r_object = data,append = TRUE)
     })
+    #回收内存
+    rm(data)
+    gc()
     #写入日志表
     #FDateFrom =  last_date
     FDateFrom =  as.character(Sys.Date())
@@ -437,6 +440,9 @@ where ERPDate is null and ERPOperation is null")
     try({
       tsda::db_writeTable(conn = conn_erp,table_name = 'PLMtoERP_BOM',r_object = data,append = TRUE)
     })
+    #回收内存
+    rm(data)
+    gc()
     #写入日志表
     #FDateFrom =  last_date
     FDateFrom =  as.character(Sys.Date())

@@ -884,6 +884,7 @@ where   b.fitemid = ",FItemId)
 
 
 #写入日志表
+gc()
 
 
 }

@@ -141,6 +141,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
   if(ncount >0){
     #检验实际获得的数据
     data_p <- tsdo::df_rowRepMulti(data_tpl,times = ncount)
+    #释放内存
+    rm(data_tpl)
     #针对数据进行替换
     data_p$FItemID <- data_bom$FItemID
     data_p$FEntryID <- 1:ncount
@@ -167,6 +169,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #str(data_p)
     #写入BOM缓存表
     tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
+    #释放内存
+    rm(data_p)
     #将数据写入正式表
     sql_write_bom_body <- paste0("INSERT INTO ICBomChild (FInterID,FEntryID,FBrNo,FItemID,FAuxPropID,FUnitID,FMaterielType,FMarshalType,FQty,FAuxQty,FBeginDay,FEndDay,FPercent,FScrap,FPositionNo,FItemSize,FItemSuite,FOperSN,FOperID,FMachinePos,FOffSetDay,FBackFlush,FStockID,FSPID,FNote,FNote1,FNote2,FNote3,FPDMImportDate,FDetailID,FCostPercentage,FEntrySelfZ0142,FEntrySelfZ0144,FEntrySelfZ0145,FEntrySelfZ0146,FEntrySelfZ0148)
 select *   from rds_icbomChild_input ")
@@ -180,7 +184,8 @@ select *   from rds_icbomChild_input ")
     tsda::sql_update(conn,sql_clear_bom_body_input)
 
   }
-
+  #回收内存BOM_getNewBillTpl_Body
+  gc()
 }
 
 
@@ -291,6 +296,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
 ) {
   #获取模板数据
   #取当前日期
+  #针对数据加强内存回收
   var_date <- as.character(Sys.Date())
   sql <- paste0("SELECT [FInterID]
       ,[FBomNumber]
@@ -358,6 +364,9 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
 
     #检验实际获得的数据,实际数据使用
     data_p <- tsdo::df_rowRepMulti(data_tpl,times = ncount)
+    #加强内存回收
+    rm(data_tpl)
+
     bom_bill_version <- strsplit(data_bom$BOMRevCode,'/')
     data_p$FBomNumber <- bom_bill_version[[1]][1]
     data_p$FVersion <-bom_getVersion(conn = conn,version_plm = bom_bill_version[[1]][2])
@@ -399,7 +408,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         # data_p$FEntrySelfZ0145 <- 0
         #View(data_p)
         # openxlsx::write.xlsx(data_p,'data_bom_head.xlsx')
-        str(data_p)
+        #str(data_p)
         #处理BOM表头信息
         var_InterID <- FInterID
         sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
@@ -410,6 +419,8 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         tsda::sql_update(conn,sql_del_bom_head)
         #写入BOM缓存表表头信息
         tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = F)
+        #删除数据，加强内存处理
+        rm(data_p)
         #将数据写入正式表
         sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
 select *   from rds_icbom_input ")
@@ -464,7 +475,7 @@ select *   from rds_icbom_input ")
           # data_p$FEntrySelfZ0145 <- 0
           #View(data_p)
           # openxlsx::write.xlsx(data_p,'data_bom_head.xlsx')
-          str(data_p)
+          #str(data_p)
           #写入BOM缓存表表头信息
           sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
    select * from ICBOM where FInterID =  ",var_InterID)
@@ -506,6 +517,8 @@ select *   from rds_icbom_input ")
               sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
               tsda::sql_update(conn,sql_del_bom_head)
               tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
+              #删除数据回收内存
+              rm(data_p)
               #将数据写入正式表
               sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
 select *   from rds_icbom_input ")
@@ -561,6 +574,7 @@ select *   from rds_icbom_input ")
 
 
   }
+  gc()
 
   return(flag)
 
@@ -675,6 +689,7 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
 
       #写入BOM报头
+      gc()
 
 
 
