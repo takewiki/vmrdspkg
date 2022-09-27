@@ -240,8 +240,9 @@ where ERPDate is null and ERPOperation is null")
       tsda::db_writeTable(conn = conn_erp,table_name = 'rds_dataSync_log',r_object = data_log,append = TRUE)
     })
     #更新PLM库的状态
-    ERP_DATE = as.character(Sys.time())
-    sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_Item a
+    #取服务器时间
+    # ERP_DATE = as.character(Sys.time())
+    sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate =   getdate()      from  PLMtoERP_Item a
 
    where ERPDate is null and ERPOperation is null")
     try({
@@ -456,8 +457,9 @@ where ERPDate is null and ERPOperation is null")
     })
     #更新PLM库的状态
 
-    ERP_DATE = as.character(Sys.time())
-    sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate = '",ERP_DATE,"'  from  PLMtoERP_BOM a
+    #ERP_DATE = as.character(Sys.time())
+    #取服务器时间
+    sql_udp_plm <- paste0("update a set a.ERPOperation = 'R' ,a.ERPDate =  getdate()  from  PLMtoERP_BOM a
 where ERPDate is null and ERPOperation is null")
     try({
       tsda::sql_update(conn = conn_plm,sql_str = sql_udp_plm)
