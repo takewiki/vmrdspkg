@@ -18,7 +18,7 @@ bom_check_is_newVersion(
 \item{FVersion}{版本号}
 }
 \value{
-
+返回值
 }
 \description{
 检验BOM是否新版本

@@ -82,7 +82,7 @@ conn_vm_erp_prd_aux2 <- function() {
 
 #' 域华生产环境的连接数库设置
 #'
-#' @return
+#' @return 返回值
 #' @export
 #'
 #' @examples
@@ -97,7 +97,7 @@ conn_vm_erp_prd <- function() {
 
 #' 域华生产环境的连接数库设置
 #'
-#' @return
+#' @return 返回值
 #' @export
 #'
 #' @examples

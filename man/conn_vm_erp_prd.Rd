@@ -7,7 +7,7 @@
 conn_vm_erp_prd()
 }
 \value{
-
+返回值
 }
 \description{
 域华生产环境的连接数库设置

@@ -168,6 +168,8 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #openxlsx::write.xlsx(data_p,'data_bom.xlsx')
     #str(data_p)
     #写入BOM缓存表
+    print(data_p)
+    #tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
     tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
     #释放内存
     rm(data_p)
@@ -197,7 +199,7 @@ select *   from rds_icbomChild_input ")
 #' @param FBOMNumber BOM
 #' @param FVersion 版本号
 #'
-#' @return
+#' @return 返回值
 #' @export
 #'
 #' @examples
