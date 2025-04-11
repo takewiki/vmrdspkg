@@ -530,7 +530,7 @@ select *   from rds_icbom_input ")
               rm(data_p)
               #将数据写入正式表
               sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select *   from rds_icbom_input ")
+select distinct *   from rds_icbom_input ")
               tsda::sql_update(conn,sql_write_bom_head)
               #清空缓存表
               sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
