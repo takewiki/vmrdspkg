@@ -169,11 +169,17 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #str(data_p)
     #写入BOM缓存表
     print(data_p)
+    print("a")
+    sql_clear_bom_body_input <- paste0("truncate table  rds_icbomChild_input ")
+    tsda::sql_update(conn,sql_clear_bom_body_input)
+
+
     #tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
     tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
     #释放内存
     rm(data_p)
     #将数据写入正式表
+
     sql_write_bom_body <- paste0("INSERT INTO ICBomChild (FInterID,FEntryID,FBrNo,FItemID,FAuxPropID,FUnitID,FMaterielType,FMarshalType,FQty,FAuxQty,FBeginDay,FEndDay,FPercent,FScrap,FPositionNo,FItemSize,FItemSuite,FOperSN,FOperID,FMachinePos,FOffSetDay,FBackFlush,FStockID,FSPID,FNote,FNote1,FNote2,FNote3,FPDMImportDate,FDetailID,FCostPercentage,FEntrySelfZ0142,FEntrySelfZ0144,FEntrySelfZ0145,FEntrySelfZ0146,FEntrySelfZ0148)
 select *   from rds_icbomChild_input ")
     tsda::sql_update(conn,sql_write_bom_body)
@@ -413,26 +419,30 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         #str(data_p)
         #处理BOM表头信息
         var_InterID <- FInterID
+
         sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
    select * from ICBOM where FInterID =  ",var_InterID)
         tsda::sql_update(conn,sql_bak_history_bom_head)
+
         #从正式表中删除掉
         sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
         tsda::sql_update(conn,sql_del_bom_head)
 
-
         #清空缓存表
-        sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
-        tsda::sql_update(conn,sql_clear_bom_body_input)
+        sql_clear_bom_body_input1 <- paste0("truncate table  rds_icbom_input ")
+        tsda::sql_update(conn,sql_clear_bom_body_input1)
 
 
         #写入BOM缓存表表头信息
+
         tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = F)
         #删除数据，加强内存处理
         rm(data_p)
         #将数据写入正式表
+
         sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select DISTINCT *   from rds_icbom_input ")
+select  *   from rds_icbom_input ")
+
         tsda::sql_update(conn,sql_write_bom_head)
         #清空缓存表
         sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
@@ -486,6 +496,7 @@ select DISTINCT *   from rds_icbom_input ")
           # openxlsx::write.xlsx(data_p,'data_bom_head.xlsx')
           #str(data_p)
           #写入BOM缓存表表头信息
+          print(11)
           sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
    select * from ICBOM where FInterID =  ",var_InterID)
           tsda::sql_update(conn,sql_bak_history_bom_head)
@@ -509,6 +520,7 @@ select DISTINCT *   from rds_icbom_input ")
             #已有数据，可以放心删除
 
             # 针对BOM数据进行处理，将数据写入历史缓存表
+            print(12)
             sql_bak_history_bom_body <- paste0("	insert into rds_ICBOMChild
    select * from ICBOMChild where FInterID =  ",var_InterID)
             tsda::sql_update(conn,sql_bak_history_bom_body)
@@ -525,17 +537,23 @@ select DISTINCT *   from rds_icbom_input ")
               #从正式表中删除掉,删除金蝶的表头，系统会自动删除表体
               sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
               tsda::sql_update(conn,sql_del_bom_head)
+              print("c")
+              sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
+              tsda::sql_update(conn,sql_clear_bom_body_input)
+
               tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
               #删除数据回收内存
               rm(data_p)
               #将数据写入正式表
+
               sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select distinct *   from rds_icbom_input ")
+select  *   from rds_icbom_input ")
+
               tsda::sql_update(conn,sql_write_bom_head)
               #清空缓存表
               sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
               tsda::sql_update(conn,sql_clear_bom_body_input)
-
+              print("d")
               flag =1
               #print('D')
 
