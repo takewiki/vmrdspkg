@@ -169,9 +169,6 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #str(data_p)
     #写入BOM缓存表
     print(data_p)
-    print("a")
-    sql_clear_bom_body_input <- paste0("truncate table  rds_icbomChild_input ")
-    tsda::sql_update(conn,sql_clear_bom_body_input)
 
 
     #tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
@@ -428,9 +425,6 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
         tsda::sql_update(conn,sql_del_bom_head)
 
-        #清空缓存表
-        sql_clear_bom_body_input1 <- paste0("truncate table  rds_icbom_input ")
-        tsda::sql_update(conn,sql_clear_bom_body_input1)
 
 
         #写入BOM缓存表表头信息
