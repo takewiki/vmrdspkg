@@ -126,8 +126,8 @@ where FNumber ='",FItemNumber,"'")
 #' @examples
 #' Item_Initial_WG()
 Item_Initial_WG <-function(conn=conn_vm_erp_test(),
-                                      table_name_rds='t_Item_rds',
-                                      table_name_room ='t_item_rdsRoom'
+                           table_name_rds='t_Item_rds',
+                           table_name_room ='t_item_rdsRoom'
 ){
 
   sql_item <- paste0("select  count(1)  as Fcount
@@ -237,8 +237,8 @@ select
 #' @examples
 #' Item_Initial_ZZ()
 Item_Initial_ZZ <-function(conn=conn_vm_erp_test(),
-                                      table_name_rds='t_Item_rds',
-                                      table_name_room ='t_item_rdsRoom'
+                           table_name_rds='t_Item_rds',
+                           table_name_room ='t_item_rdsRoom'
 ){
 
   sql_item <- paste0("select  count(1)  as Fcount
@@ -347,8 +347,8 @@ select
 #' @examples
 #' md_pushItem2UnAllocated_ww()
 Item_Initial_WW <-function(conn=vmrdspkg::conn_vm_erp_test(),
-                                      table_name_rds='t_Item_rds',
-                                      table_name_room ='t_item_rdsRoom'
+                           table_name_rds='t_Item_rds',
+                           table_name_room ='t_item_rdsRoom'
 ){
 
   sql_item <- paste0("select  count(1)  as Fcount
@@ -458,7 +458,7 @@ select
 #' @examples
 #' Item_getUnAllocateNumber()
 Item_getUnAllocateNumber <- function(conn=conn_vm_erp_test(),
-                                      MProp='外购') {
+                                     MProp='外购') {
   #获取相应的数据物料数据，不考虑成本成本对象
   # 但是更新数据时需要考虑成本对象的
   sql <- paste0(" select  top  1  FNumber from t_item_rdsroom
@@ -518,14 +518,14 @@ where FNumber ='",FNumber,"' and FItemClassID =4 ")
 #' @examples
 #' Item_ReadItem_One
 Item_ReadItem_One <- function(conn=conn_vm_erp_test(),
-                         MCode='3.02.09.001025',
-                         MProp='外购',
-                         PLMBatchnum='ECN00000002') {
+                              MCode='3.02.09.001025',
+                              MProp='外购',
+                              PLMBatchnum='ECN00000002') {
 
   #获取处理批次
   sql <- paste0("select  MCode,MName,Spec,MDesc,UOM,MProp   from PLMtoERP_Item
 where PLMBatchnum  ='",PLMBatchnum,"'  and MProp = N'",MProp,"'  and MCode ='",MCode,"' ")
-   #print(sql)
+  #print(sql)
 
   #返回结果
   res <- tsda::sql_select(conn = conn,sql_str = sql)
@@ -548,9 +548,9 @@ where PLMBatchnum  ='",PLMBatchnum,"'  and MProp = N'",MProp,"'  and MCode ='",M
 #' @examples
 #' Item_updateTaskStatus_One()
 Item_updateTaskStatus_One <- function(conn=conn_vm_erp_test(),
-                              MCode='3.02.09.001025',
-                              MProp='外购',
-                              PLMBatchnum='ECN00000002') {
+                                      MCode='3.02.09.001025',
+                                      MProp='外购',
+                                      PLMBatchnum='ECN00000002') {
   #更新时间取ERP服务器时间
   #ERP_DATE = as.character(Sys.time())
 
@@ -597,7 +597,7 @@ Item_GetParentItemId_costObj <- function(conn=conn_vm_erp_test(),
 #' @examples
 #' Item_getItemID_costObj()
 Item_getItemID_costObj <- function(conn=conn_vm_erp_test2(),
-                                         FNumber='RDS.02.000002') {
+                                   FNumber='RDS.02.000002') {
 
   sql <- paste0("select FItemId from t_item_rdsRoom where FPropTYPE ='自制' and FItemClassId =2001 and fnumber ='",FNumber,"'")
   ##print(sql)
@@ -631,102 +631,102 @@ Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
                                  MProp,
                                  PLMBatchnum
 
-                                 ){
-#写入代码：
-#处理一行物料信息
-#外购与委外都没有成本对象
-#获取物料
-FItemId = item_GetInterId(conn_erp = conn,FItemNumber = MCode)
-#读取传过来的信息
-res <- Item_ReadItem_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
-#print('step1 ')
-#print(res)
-#print(FItemId)
-if(FItemId >0){
-  #物料已经存在
-  #说明物料编码已经存在修改相关的信息即可
-  if(MProp == '外购'){
-    #1.1A外购物料修改处理----
+){
+  #写入代码：
+  #处理一行物料信息
+  #外购与委外都没有成本对象
+  #获取物料
+  FItemId = item_GetInterId(conn_erp = conn,FItemNumber = MCode)
+  #读取传过来的信息
+  res <- Item_ReadItem_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
+  #print('step1 ')
+  #print(res)
+  #print(FItemId)
+  if(FItemId >0){
+    #物料已经存在
+    #说明物料编码已经存在修改相关的信息即可
+    if(MProp == '外购'){
+      #1.1A外购物料修改处理----
 
 
-  }else if(MProp == '自制'){
-    #1.1B自制物料修改处理----
+    }else if(MProp == '自制'){
+      #1.1B自制物料修改处理----
 
 
-  }else if(MProp == '委外加工'){
-    #1.1C委外加工物料修改处理----
+    }else if(MProp == '委外加工'){
+      #1.1C委外加工物料修改处理----
 
 
+    }else{
+
+      #1.1D其他属性物料修改处理----
+
+
+    }
+    #更新状态
+    Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
   }else{
-
-    #1.1D其他属性物料修改处理----
-
-
-  }
-  #更新状态
-  Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
-}else{
-  #物料不存在
-  #传入新分配的物料编码
-  #print('s1')
-  FNumber = Item_getUnAllocateNumber(conn = conn,MProp = MProp)
-  #print('s1')
-  #print(FNumber)
-  #分配数据
-  res$FNumber <-  FNumber
-  res$FBatchNo <- PLMBatchnum
-  res$FIsdo <- 0
-  FItemId <- Item_getUnAllocateItemId(conn = conn,FNumber = FNumber)
-  res$FItemId <- FItemId
-  #上级物料编码
-  res$FParentNumber <- mdmpkg::mdm_getParentNumber(MCode)
-  try(tsda::db_writeTable(conn = conn,table_name = 't_item_rdsInput',r_object = res,append = T))
-  #更新分配结果表,处理逻辑包含成本对象
-  sql_rdsroom_upd <- paste0("update a set a.fnumber_new = '",MCode,"',a.FFlag =1  from  t_item_rdsroom a
+    #物料不存在
+    #传入新分配的物料编码
+    #print('s1')
+    FNumber = Item_getUnAllocateNumber(conn = conn,MProp = MProp)
+    #print('s1')
+    #print(FNumber)
+    #分配数据
+    res$FNumber <-  FNumber
+    res$FBatchNo <- PLMBatchnum
+    res$FIsdo <- 0
+    FItemId <- Item_getUnAllocateItemId(conn = conn,FNumber = FNumber)
+    res$FItemId <- FItemId
+    #上级物料编码
+    res$FParentNumber <- mdmpkg::mdm_getParentNumber(MCode)
+    try(tsda::db_writeTable(conn = conn,table_name = 't_item_rdsInput',r_object = res,append = T))
+    #更新分配结果表,处理逻辑包含成本对象
+    sql_rdsroom_upd <- paste0("update a set a.fnumber_new = '",MCode,"',a.FFlag =1  from  t_item_rdsroom a
                             where FNumber = '",FNumber,"' ")
-  tsda::sql_update(conn=conn,sql_str = sql_rdsroom_upd)
-  #更新内码,不需要更新物料内码
-  # sql_rdsInput_itemID <- paste0("  update b  set   b.fitemid = a.fitemid  from  t_item_rdsroom a
-  # inner join  t_item_rdsInput b
-  # on a.fnumber=b.fnumber
-  # where  a.fitemclassid =4  and b.fnumber = '",FNumber,"'")
-  # tsda::sql_update(conn,sql_str = sql_rdsInput_itemID)
-  #
+    tsda::sql_update(conn=conn,sql_str = sql_rdsroom_upd)
+    #更新内码,不需要更新物料内码
+    # sql_rdsInput_itemID <- paste0("  update b  set   b.fitemid = a.fitemid  from  t_item_rdsroom a
+    # inner join  t_item_rdsInput b
+    # on a.fnumber=b.fnumber
+    # where  a.fitemclassid =4  and b.fnumber = '",FNumber,"'")
+    # tsda::sql_update(conn,sql_str = sql_rdsInput_itemID)
+    #
 
-  #1.7 处理物料主表----
-  sql_item_rds <- paste0("update  a set  a.FNumber =b.MCode ,a.FName=b.MName,a.fparentid = i.FItemID   from t_item_rds a
+    #1.7 处理物料主表----
+    sql_item_rds <- paste0("update  a set  a.FNumber =b.MCode ,a.FName=b.MName,a.fparentid = i.FItemID   from t_item_rds a
 inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
 inner join t_item  i
 on b.fParentNumber = i.FNumber
 where  a.fnumber = '",FNumber,"'")
-  tsda::sql_update(conn,sql_str = sql_item_rds)
-  #处理物料核心表----
-  sql_item_core <- paste0("update a set    a.FNumber = b.MCode ,a.FName = b.MName ,a.FModel = b.Spec  from t_ICItemCore a
+    tsda::sql_update(conn,sql_str = sql_item_rds)
+    #处理物料核心表----
+    sql_item_core <- paste0("update a set    a.FNumber = b.MCode ,a.FName = b.MName ,a.FModel = b.Spec  from t_ICItemCore a
 inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
 
 where  a.fnumber = '",FNumber,"'")
-  tsda::sql_update(conn,sql_str = sql_item_core)
-  #处理物料自定义表----
-  sql_item_custom <- paste0("update a set   a.F_119 = b.MDesc   from t_ICItemCustom a
+    tsda::sql_update(conn,sql_str = sql_item_core)
+    #处理物料自定义表----
+    sql_item_custom <- paste0("update a set   a.F_119 = b.MDesc   from t_ICItemCustom a
 inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
 
 where  b.fitemid =  ",FItemId)
-  tsda::sql_update(conn,sql_str = sql_item_custom)
-  #更新物料属性表
-  #列新数据
-  timeValue = as.character(Sys.time())
-  sql_item_baseProp <- paste0("update a set   a.FCreateDate = '",timeValue,"'   from t_BaseProperty a
+    tsda::sql_update(conn,sql_str = sql_item_custom)
+    #更新物料属性表
+    #列新数据
+    timeValue = as.character(Sys.time())
+    sql_item_baseProp <- paste0("update a set   a.FCreateDate = '",timeValue,"'   from t_BaseProperty a
 inner join  t_item_rdsInput b
 on a.fitemid = b.fitemid
 
 where  b.fitemid =  ",FItemId)
-  tsda::sql_update(conn,sql_str = sql_item_baseProp)
+    tsda::sql_update(conn,sql_str = sql_item_baseProp)
 
-  #更新物料的单位----
-  sql_item_base <- paste0("update a set  FUnitID = m.FMeasureUnitID,FUnitGroupID=m.FUnitGroupID,
+    #更新物料的单位----
+    sql_item_base <- paste0("update a set  FUnitID = m.FMeasureUnitID,FUnitGroupID=m.FUnitGroupID,
 FOrderUnitID =m.FMeasureUnitID,
 FProductUnitID =m.FMeasureUnitID,
 FSaleUnitID =m.FMeasureUnitID,
@@ -737,9 +737,9 @@ on a.fitemid = b.fitemid
 inner join t_MeasureUnit m
 on b.UOM  = m.FName
  where  b.fitemid =  ",FItemId)
-  tsda::sql_update(conn,sql_str = sql_item_base)
-  #1.8将物料从缓存区更新到主表------
-  sql_item_pushBack <- paste0("INSERT INTO [dbo].t_item
+    tsda::sql_update(conn,sql_str = sql_item_base)
+    #1.8将物料从缓存区更新到主表------
+    sql_item_pushBack <- paste0("INSERT INTO [dbo].t_item
            ([FItemID]
            ,[FItemClassID]
            ,[FExternID]
@@ -788,23 +788,23 @@ on b.UOM  = m.FName
            ,[FHavePicture]
 		   from t_item_rds
 		   where fitemid = ",FItemId)
-  tsda::sql_update(conn,sql_str = sql_item_pushBack)
+    tsda::sql_update(conn,sql_str = sql_item_pushBack)
 
-  #1.9更新物料表的状态---
-  sql_itemInput_updateStatus <- paste0("update  b set FIsDo =1   from  t_item_rdsInput b
+    #1.9更新物料表的状态---
+    sql_itemInput_updateStatus <- paste0("update  b set FIsDo =1   from  t_item_rdsInput b
 where   b.fitemid = ",FItemId)
-  tsda::sql_update(conn,sql_str = sql_itemInput_updateStatus)
-  #1.10更新中间表的状态-------
-  #读取配置文件
-   Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
+    tsda::sql_update(conn,sql_str = sql_itemInput_updateStatus)
+    #1.10更新中间表的状态-------
+    #读取配置文件
+    Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
 
-  if(MProp == '外购'){
-    #1.1E外购物料新增处理----
+    if(MProp == '外购'){
+      #1.1E外购物料新增处理----
 
 
-  }else if(MProp == '自制'){
-    #1.1F自制物料新增处理----
-     #成本对象的处理
+    }else if(MProp == '自制'){
+      #1.1F自制物料新增处理----
+      #成本对象的处理
       FParentItemID_obj = Item_GetParentItemId_costObj(conn = conn,MCode = MCode)
       FItemId_obj = Item_getItemID_costObj(conn=conn,FNumber = FNumber )
       sql_obj_rds <- paste0("update  a set  a.FNumber =  '",MCode,"' ,a.FName=   '",res$MName,"'  ,  a.fparentid =  ",FParentItemID_obj,"   from t_item_rds a
@@ -862,30 +862,30 @@ where   b.fitemid = ",FItemId)
 		   where fitemid = ",FItemId_obj)
       tsda::sql_update(conn,sql_str = sql_obj_pushBack)
       # 更新成本对象表
-       sql_obj_table <- paste0("update  a set  a.FNumber =  '",MCode,"' ,a.FName=   '",res$MName,"'  ,  a.fparentid =  ",FParentItemID_obj,"   from cbCostObj a
+      sql_obj_table <- paste0("update  a set  a.FNumber =  '",MCode,"' ,a.FName=   '",res$MName,"'  ,  a.fparentid =  ",FParentItemID_obj,"   from cbCostObj a
                             where a.FItemId =  ",FItemId_obj)
-       tsda::sql_update(conn,sql_str = sql_obj_table)
+      tsda::sql_update(conn,sql_str = sql_obj_table)
 
 
 
 
 
-  }else if(MProp == '委外加工'){
-    #1.1G委外加工物料新增处理---
+    }else if(MProp == '委外加工'){
+      #1.1G委外加工物料新增处理---
 
 
-  }else{
-    #1.1H其他属性物料新增处理-----
+    }else{
+      #1.1H其他属性物料新增处理-----
 
+
+    }
 
   }
 
-}
 
 
-
-#写入日志表
-gc()
+  #写入日志表
+  gc()
 
 
 }
