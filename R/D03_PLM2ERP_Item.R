@@ -184,12 +184,12 @@ PLM_Item_readByBatchNo_WG_New <- function(config_file = "config/conn_tc.R",batch
 #' @examples
 #' PLM_Item_Allocated_wg()
 PLM_Item_Allocated_wg <- function(config_file = "config/conn_tc.R",batchNo='APP00000005',
-                                          conn_erp = conn_vm_erp_test()) {
+                                  conn_erp = conn_vm_erp_test()) {
 
 
   #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_WG_New(config_file = config_file,batchNo = batchNo,
-                                       conn_erp = conn_erp)
+                                          conn_erp = conn_erp)
   ###print('test_new:')
   ###print(df_new)
   ncount <- nrow(df_new)
@@ -454,7 +454,7 @@ PLM_Item_Allocated_zz <- function(config_file = "config/conn_tc.R",batchNo='APP0
                                   conn_erp = conn_vm_erp_test()) {
   #1.1读取新增物料数据----
   df_new <- PLM_Item_readByBatchNo_ZZ_New(config_file = config_file,batchNo = batchNo,
-                                              conn_erp = conn_erp)
+                                          conn_erp = conn_erp)
   ###print('test_new:')
   ###print(df_new)
   ncount <- nrow(df_new)

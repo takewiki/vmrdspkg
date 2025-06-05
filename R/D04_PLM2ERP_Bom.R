@@ -50,11 +50,15 @@ where i.FNumber ='",PMCode,"'  and a.FUseStatus =1072 ")
   r <- tsda::sql_select(conn,sql)
   ncount <- nrow(r)
   if(ncount >0){
+    #print("确认一下一个产品是否会有2个BOM")
     #确认一下一个产品是否会有2个BOM
     #这种处理有点欠妥啊  20220218
     res <- r$FInterID[1]
+    #print(res)
   }else{
+    #print("产品是1个BOM")
     res<- BOM_getNewInterId(conn=conn)
+    #print(res)
   }
 
   return(res)
@@ -168,7 +172,10 @@ BOM_getNewBillTpl_Body <- function(conn=conn_vm_erp_test(),
     #openxlsx::write.xlsx(data_p,'data_bom.xlsx')
     #str(data_p)
     #写入BOM缓存表
-    print(data_p)
+    #print(data_p)
+    #print("a")
+    sql_clear_bom_body_input <- paste0("truncate table  rds_icbomChild_input ")
+    tsda::sql_update(conn,sql_clear_bom_body_input)
 
 
     #tsda::db_writeTable(conn = conn,table_name = 'rds_icbomChild_input',r_object = data_p,append = F)
@@ -425,6 +432,9 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         sql_del_bom_head <- paste0(" delete  from ICBOM where FInterID =  ",var_InterID)
         tsda::sql_update(conn,sql_del_bom_head)
 
+        #清空缓存表
+        sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
+        tsda::sql_update(conn,sql_clear_bom_body_input)
 
 
         #写入BOM缓存表表头信息
@@ -435,7 +445,7 @@ BOM_getNewBillTpl_Head <- function(conn=conn_vm_erp_test(),
         #将数据写入正式表
 
         sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select  *   from rds_icbom_input ")
+select  distinct*   from rds_icbom_input ")
 
         tsda::sql_update(conn,sql_write_bom_head)
         #清空缓存表
@@ -488,7 +498,7 @@ select  *   from rds_icbom_input ")
           # data_p$FEntrySelfZ0145 <- 0
           #View(data_p)
           # openxlsx::write.xlsx(data_p,'data_bom_head.xlsx')
-          #str(data_p)
+          str(data_p)
           #写入BOM缓存表表头信息
           print(11)
           sql_bak_history_bom_head <- paste0("	insert into rds_ICBOM
@@ -534,14 +544,14 @@ select  *   from rds_icbom_input ")
               print("c")
               sql_clear_bom_body_input <- paste0("truncate table  rds_icbom_input ")
               tsda::sql_update(conn,sql_clear_bom_body_input)
-
+              print("e")
               tsda::db_writeTable(conn = conn,table_name = 'rds_icbom_input',r_object = data_p,append = T)
               #删除数据回收内存
               rm(data_p)
               #将数据写入正式表
 
               sql_write_bom_head <- paste0("INSERT INTO ICBom(FInterID,FBomNumber,FBrNo,FTranType,FCancellation,FStatus,FVersion,FUseStatus,FItemID,FUnitID,FAuxPropID,FAuxQty,FYield,FNote,FCheckID,FCheckDate,FOperatorID,FEntertime,FRoutingID,FBomType,FCustID,FParentID,FAudDate,FImpMode,FPDMImportDate,FBOMSkip,FUseDate,FHeadSelfZ0135)
-select  *   from rds_icbom_input ")
+select  distinct*   from rds_icbom_input ")
 
               tsda::sql_update(conn,sql_write_bom_head)
               #清空缓存表
@@ -645,8 +655,16 @@ bom_readIntoERP_updateStatus<- function(conn=conn_vm_erp_test(),
 #' bom_getList()
 bom_getList <- function(conn=conn_vm_erp_test()) {
 
+  #   sql <- paste0("select distinct  PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
+  # where  cmcode ='' and  ERPDate is null ")
+  #返回最近30天的数据
   sql <- paste0("select distinct  PMCode,PLMBatchNum from  vw_PLMtoERP_BOM
-where  cmcode ='' and  ERPDate is null ")
+ where  cmcode ='' and  ERPDate is null
+ and PLMDate>=GETDATE()-30
+ ")
+
+
+
   res <- tsda::sql_select(conn,sql)
   return(res)
 
@@ -677,7 +695,7 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
 
 
   bom_list <-  bom_getList(conn = conn)
-  #print('bom_list')
+
   #print(bom_list)
   ncount = nrow(bom_list)
 
@@ -686,14 +704,18 @@ bom_readIntoERP_ALL <- function(conn=conn_vm_erp_test()){
     lapply(1:ncount, function(i){
       PMCode <- bom_list$PMCode[i]
       PLMBatchnum <- bom_list$PLMBatchNum[i]
+      #print(PMCode)
+      #print(PLMBatchnum)
 
       #获取内码
       #只过滤使用状态的BOM
 
       FInterID = bom_getInterId(conn = conn,PMCode = PMCode)
+
       #针对BOM打头的物料，需要修改BOM表头信息
       #print('test1:bom_interid')
-      #print(FInterID)
+      #print("获取内码")
+      # print(FInterID)
 
       flag = BOM_getNewBillTpl_Head(conn = conn,PMCode = PMCode,PLMBatchnum = PLMBatchnum,FInterID =FInterID )
       #处理BOM表头
