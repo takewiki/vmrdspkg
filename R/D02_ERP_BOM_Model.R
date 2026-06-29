@@ -44,6 +44,7 @@ where FParentItemNumber in
 (
   select fsubitemnumber from rds_pdm_bomTestSet where FStep = ",FStep - 1,"  and FStatus = 0)")
 
+
 }
   return(sql)
 }
