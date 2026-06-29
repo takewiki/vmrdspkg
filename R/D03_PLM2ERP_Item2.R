@@ -806,6 +806,15 @@ inner join t_ICItemMaterial im
 on i.FItemID  = im.FItemID
 where im.FBatchManager <> 0")
     tsda::sql_update(conn,sql_str = sql_LowPriceMtrl_cancelBatchManger)
+    #设置低值易消耗品的默认仓库仓位
+    sql_LowPriceMtrl_setDefaultStockPlace <- paste0("update im set im.fdefaultloc=13149,fspid =0
+from t_ICItem i inner JOIN
+rds_t_item_LowPriceMtrl l
+on left(i.FNumber ,8) = l.Fnumber
+inner join t_ICItembase im
+on i.FItemID  = im.FItemID
+where im.FDefaultLoc <> 13149 and im.FSPID <>0")
+    tsda::sql_update(conn,sql_str = sql_LowPriceMtrl_setDefaultStockPlace)
     #低值易消耗处理结束
 
     if(MProp == '外购'){
