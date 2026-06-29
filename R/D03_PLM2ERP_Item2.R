@@ -816,6 +816,13 @@ on i.FItemID  = im.FItemID
 where im.FDefaultLoc <> 13149 and im.FSPID <>0")
     tsda::sql_update(conn,sql_str = sql_LowPriceMtrl_setDefaultStockPlace)
     #低值易消耗处理结束
+    #增加对物料上级组的处理
+    sql_parentId_update = paste0("update b set  b.FParentID = a.fparentid  from t_item  a
+inner join t_ICItemCore b
+on a.FItemID  = b.FItemID
+where  a.FItemClassID  = 4
+and a.FParentID  <> b.FParentID")
+    tsda::sql_update(conn,sql_str = sql_parentId_update)
 
     if(MProp == '外购'){
       #1.1E外购物料新增处理----
