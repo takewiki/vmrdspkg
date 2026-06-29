@@ -39,6 +39,7 @@ ERP_Item_getMaxItemNoByGroup <- function(config_file = "config/conn_k3.R",FNumbe
   sql <- paste0("select max(FNumber) as FMaxNumber from t_ICItem where
 FParentID in
 (select  FParentID from t_ICItem where FNumber='1.105.04.00001'
+
 )")
 
 
