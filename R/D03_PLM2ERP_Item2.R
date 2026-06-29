@@ -626,7 +626,7 @@ Item_getItemID_costObj <- function(conn=conn_vm_erp_test2(),
 #'
 #' @examples
 #' Item_readIntoERP_One()
-可以Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
+Item_readIntoERP_One <- function(conn=conn_vm_erp_test(),
                                  MCode,
                                  MProp,
                                  PLMBatchnum
