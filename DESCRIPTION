@@ -1,7 +1,7 @@
 Package: vmrdspkg
 Type: Package
 Title: package for vm app.
-Version: 6.1.7
+Version: 6.1.8
 Author: hulilei
 Maintainer: hulilei <hulilei@takewiki.com.cn>
 Description: More about what it does (maybe more than one line)
@@ -19,7 +19,6 @@ Collate:
     'D02_ERP_BOM_Model.R'
     'D03A_PLM2ERP_Item.R'
     'D03_PLM2ERP_Item.R'
-    'D03_PLM2ERP_Item2.R'
     'D04_PLM2ERP_Bom.R'
     'E01_log.R'
     'ERP_material.R'
