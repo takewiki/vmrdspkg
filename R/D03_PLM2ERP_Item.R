@@ -1654,13 +1654,15 @@ where   b.fitemid = ",FItemId)
     #读取配置文件
     Item_updateTaskStatus_One(conn = conn,MCode = MCode,MProp = MProp,PLMBatchnum = PLMBatchnum)
     #处理低值易消品取消批次管理
+    #按物料进行列新 FNumber
     sql_LowPriceMtrl_cancelBatchManger <- paste0("update im set im.FBatchManager = 0
 from t_ICItem i inner JOIN
 rds_t_item_LowPriceMtrl l
 on left(i.FNumber ,8) = l.Fnumber
 inner join t_ICItemMaterial im
 on i.FItemID  = im.FItemID
-where im.FBatchManager <> 0")
+where im.FBatchManager <> 0 and i.FNumber ='",FNumber,"' ")
+
     tsda::sql_update(conn,sql_str = sql_LowPriceMtrl_cancelBatchManger)
     #设置低值易消耗品的默认仓库仓位
     sql_LowPriceMtrl_setDefaultStockPlace <- paste0("update im set im.fdefaultloc=13149,fspid =0
@@ -1669,7 +1671,7 @@ rds_t_item_LowPriceMtrl l
 on left(i.FNumber ,8) = l.Fnumber
 inner join t_ICItembase im
 on i.FItemID  = im.FItemID
-where im.FDefaultLoc <> 13149 and im.FSPID <>0")
+where im.FDefaultLoc <> 13149 and im.FSPID <>0 and i.FNumber ='",FNumber,"'")
     tsda::sql_update(conn,sql_str = sql_LowPriceMtrl_setDefaultStockPlace)
     #低值易消耗处理结束
     #增加对物料上级组的处理
